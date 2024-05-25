@@ -1,9 +1,13 @@
 import Pusher from "pusher";
 import type { APIEvent } from "@solidjs/start/server";
 
-export function GET({ params }: APIEvent) {
+export async function POST(event: APIEvent) {
 
-    if (!params.channel) {
+    const body = await event.request.json();
+
+    console.log(body);
+
+    if (!body.channel) {
         return {
             status: 400,
             body: JSON.stringify({ message: "Missing channel." })
@@ -18,9 +22,8 @@ export function GET({ params }: APIEvent) {
         useTLS: true
     });
     
-    const random = Math.floor(Math.random() * 100).toFixed(0);
-    pusher.trigger(params.channel, "my-event", {
-    message: "hello world! number: " + random
+    pusher.trigger(body.channel, "my-event", {
+        message: body.content
     });
 
     return {

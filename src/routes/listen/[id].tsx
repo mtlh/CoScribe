@@ -1,9 +1,22 @@
-import { onMount } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
 import { useParams } from "@solidjs/router";
 
 export default function Listen() {
 
     const channelID = useParams().id;
+
+    const [paragraph, setParagraph] = createSignal('');
+
+    function logUpdate(para: string) {
+        fetch(`/api/newevent`, {
+            method: 'POST',
+            body: JSON.stringify({ 
+                content:  para,
+                channel: channelID
+            })
+        });
+        setParagraph(para);
+    }
 
     onMount(() => {
         const script = document.createElement('script');
@@ -24,19 +37,18 @@ export default function Listen() {
             // Bind an event handler to the event
             // @ts-ignore
             channel.bind('my-event', function(data) {
-                alert(JSON.stringify(data));
+                console.log('Received event: ', data);
+                setParagraph(data.message)
             });
         };
         document.body.appendChild(script);
     });
 
     return (
-        <>
+        <div class="max-w-7xl m-auto">
             <h1>Pusher Test</h1>
-            <p>
-                Try publishing an event to channel <code>{channelID}</code>
-                with event name <code>my-event</code>.
-            </p>
-        </>
+            <p>Listening to channel <code>{channelID}</code></p>
+            <input value={paragraph()} onInput={(e) => logUpdate(e.currentTarget.value)} class='w-full h-96 border-2 border-gray-300 rounded-md p-4' />
+        </div>
     );
 }
