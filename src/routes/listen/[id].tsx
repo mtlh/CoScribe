@@ -1,24 +1,47 @@
-import { createSignal, onMount } from 'solid-js';
+import { createSignal, onCleanup, onMount } from 'solid-js';
 import { useParams } from "@solidjs/router";
 
 export default function Listen() {
 
     const channelID = useParams().id;
 
+    let sessionID: string;
+    try {
+        sessionID = localStorage.getItem('sessionID')!;
+        if (!sessionID) {
+            sessionID = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            localStorage.setItem('sessionID', sessionID);
+        }
+    } catch (e) {
+        sessionID = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    }
+
     const [paragraph, setParagraph] = createSignal('');
+
+    function saveParagraph() {
+        fetch(`/api/savedoc`, {
+            method: 'POST',
+            body: JSON.stringify({ 
+                content:  paragraph(),
+                channel: channelID,
+                sessionID: sessionID
+            })
+        });
+    }
 
     function logUpdate(para: string) {
         fetch(`/api/newevent`, {
             method: 'POST',
             body: JSON.stringify({ 
                 content:  para,
-                channel: channelID
+                channel: channelID,
+                sessionID: sessionID
             })
         });
         setParagraph(para);
     }
 
-    onMount(() => {
+    onMount(async () => {
         const script = document.createElement('script');
         script.src = "https://js.pusher.com/8.2.0/pusher.min.js";
         script.onload = () => {
@@ -38,17 +61,50 @@ export default function Listen() {
             // @ts-ignore
             channel.bind('my-event', function(data) {
                 console.log('Received event: ', data);
-                setParagraph(data.message)
+                if (data.sessionID != sessionID) {
+                    console.log('Not my event');
+                    setParagraph(data.message)
+                }
             });
         };
         document.body.appendChild(script);
+
+        const res = await fetch(`/api/getdoc`, {
+            method: 'POST',
+            body: JSON.stringify({ 
+                channel: channelID,
+                sessionID: sessionID
+            })
+        });
+        res.json().then(data => {
+            const load_paragraph = JSON.parse(data.body);
+            if (load_paragraph.message) {
+                document.getElementById('editableDiv')!.innerHTML = load_paragraph.message;
+            }
+        });
     });
 
+    let editableDiv;
+    onCleanup(() => {
+      editableDiv = null;
+    });
+    const handleInput = (e: { currentTarget: { innerHTML: any; }; }) => {
+      const newTextContent = e.currentTarget.innerHTML;
+      logUpdate(newTextContent);
+    };
+  
     return (
-        <div class="max-w-7xl m-auto">
-            <h1>Pusher Test</h1>
-            <p>Listening to channel <code>{channelID}</code></p>
-            <input value={paragraph()} onInput={(e) => logUpdate(e.currentTarget.value)} class='w-full h-96 border-2 border-gray-300 rounded-md p-4' />
-        </div>
+      <div class="max-w-7xl m-auto">
+        <h1>Pusher Test</h1>
+        <p>Listening to channel <code>{channelID}</code></p>
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={saveParagraph}>Save</button>
+        <div
+          ref={el => editableDiv = el}
+          id='editableDiv'
+          contentEditable={true}
+          onInput={handleInput}
+          class="w-full border-2 border-gray-300 rounded-md p-4"
+        ></div>
+      </div>
     );
-}
+  };

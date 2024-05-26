@@ -23,7 +23,8 @@ export async function POST(event: APIEvent) {
     });
     
     pusher.trigger(body.channel, "my-event", {
-        message: body.content
+        message: body.content,
+        sessionID: body.sessionID
     });
 
     return {
