@@ -18,16 +18,38 @@ export default function Listen() {
 
     const [paragraph, setParagraph] = createSignal('');
 
-    function saveParagraph() {
-        fetch(`/api/savedoc`, {
-            method: 'POST',
-            body: JSON.stringify({ 
-                content:  paragraph(),
-                channel: channelID,
-                sessionID: sessionID
-            })
-        });
-    }
+    // function saveParagraph() {
+    //     fetch(`/api/savedoc`, {
+    //         method: 'POST',
+    //         body: JSON.stringify({ 
+    //             content:  paragraph(),
+    //             channel: channelID,
+    //             sessionID: sessionID
+    //         })
+    //     });
+    // }
+
+    let debounceTimeout: string | number | NodeJS.Timeout | undefined;
+    let lastCallTime = 0;
+    const debounceTime = 2000; // 2 seconds
+    const throttleTime = 10000; // 10 seconds
+    const fetchWithDebounce = () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+            const currentTime = Date.now();
+            if (currentTime - lastCallTime >= throttleTime) {
+                lastCallTime = currentTime;
+                fetch(`/api/savedoc`, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        content:  paragraph(),
+                        channel: channelID,
+                        sessionID: sessionID
+                    })
+                });
+            }
+        }, debounceTime);
+    };
 
     function logUpdate(para: string) {
         fetch(`/api/newevent`, {
@@ -38,6 +60,7 @@ export default function Listen() {
                 sessionID: sessionID
             })
         });
+        fetchWithDebounce()
         setParagraph(para);
     }
 
@@ -64,6 +87,7 @@ export default function Listen() {
                 if (data.sessionID != sessionID) {
                     console.log('Not my event');
                     setParagraph(data.message)
+                    document.getElementById('editableDiv')!.innerHTML = data.message;
                 }
             });
         };
@@ -96,8 +120,8 @@ export default function Listen() {
     return (
       <div class="max-w-7xl m-auto">
         <h1>Pusher Test</h1>
-        <p>Listening to channel <code>{channelID}</code></p>
-        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={saveParagraph}>Save</button>
+        <p>Listening to channel <code>{channelID}</code></p> 
+        {/* <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={saveParagraph}>Save</button> */}
         <div
           ref={el => editableDiv = el}
           id='editableDiv'
