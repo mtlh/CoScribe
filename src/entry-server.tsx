@@ -8,7 +8,9 @@ export default createHandler(() => (
         <head>
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="icon" href="/favicon.ico" />
+          <link rel="icon" href="/logo.svg" />
+          <meta name="description" content="CoScribe - A collaborative writing platform" />
+          <meta name="author" content="CoScribe" />
           {assets}
         </head>
         <body>

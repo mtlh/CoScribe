@@ -1,5 +1,6 @@
 import { createSignal, onCleanup, onMount } from 'solid-js';
 import { useParams } from "@solidjs/router";
+import { Title } from '@solidjs/meta';
 
 export default function Listen() {
 
@@ -118,17 +119,20 @@ export default function Listen() {
     };
   
     return (
-      <div class="max-w-7xl m-auto">
-        <h1>Pusher Test</h1>
-        <p>Listening to channel <code>{channelID}</code></p> 
-        {/* <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={saveParagraph}>Save</button> */}
-        <div
-          ref={el => editableDiv = el}
-          id='editableDiv'
-          contentEditable={true}
-          onInput={handleInput}
-          class="w-full border-2 border-gray-300 rounded-md p-4"
-        ></div>
-      </div>
+        <>
+            <Title>CoScribe - Pusher Test</Title>
+            <main class="max-w-7xl m-auto mt-10">
+                <h1 class="header">Pusher Test</h1>
+                <p>Listening to channel <code>{channelID}</code></p> 
+                {/* <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={saveParagraph}>Save</button> */}
+                <div
+                ref={el => editableDiv = el}
+                id='editableDiv'
+                contentEditable={true}
+                onInput={handleInput}
+                class="w-full border-2 border-gray-300 rounded-md p-4"
+                ></div>
+            </main>
+        </>
     );
   };
