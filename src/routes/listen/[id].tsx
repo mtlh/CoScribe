@@ -53,6 +53,39 @@ export default function Listen() {
     };
 
     function logUpdate(para: string) {
+
+        // if last 7 characters are "-&nbsp;" then change into a bullet point list (TODO: make this configurable)
+        if (para.indexOf("<div>-&nbsp;</div>") > -1 || para == "-&nbsp;") {
+            const editableDiv = document.getElementById('editableDiv')!;
+            const caretPos = getCaretCharOffset(editableDiv);
+            console.log(caretPos);
+            para = para.replace("-&nbsp;", "<ul class='list-disc'><li></li></ul>");
+            editableDiv.innerHTML = para;
+            const ulElements = editableDiv.querySelectorAll('ul.list-disc');
+            if (ulElements.length > 0) {
+                let ulIndex = 0;
+                for (let i = 0; i < ulElements.length; i++) {
+                    const ulPosition = getCaretCharOffset(ulElements[i]);
+                    if (caretPos > ulPosition) {
+                        ulIndex = i + 1;
+                    } else {
+                        break;
+                    }
+                }
+                const range = document.createRange();
+                range.setStartBefore(ulElements[Math.min(ulIndex, ulElements.length - 1)]);
+                range.collapse(true);
+                const sel = window.getSelection()!;
+                sel.removeAllRanges();
+                sel.addRange(range);
+                editableDiv.focus();
+            } else {
+                console.error("No <ul> elements found after replacing '-&nbsp;'");
+            }
+        }
+        
+        
+
         fetch(`/api/newevent`, {
             method: 'POST',
             body: JSON.stringify({ 
@@ -72,13 +105,11 @@ export default function Listen() {
             // Enable Pusher logging - don't include this in production
             // @ts-ignore
             Pusher.logToConsole = true;
-
             // Initialize Pusher
             // @ts-ignore
             const pusher = new Pusher('91d88f32be53f60ccdf0', {
                 cluster: 'eu'
             });
-
             // Subscribe to the channel
             const channel = pusher.subscribe(channelID);
             // Bind an event handler to the event
@@ -104,7 +135,8 @@ export default function Listen() {
         res.json().then(data => {
             const load_paragraph = JSON.parse(data.body);
             if (load_paragraph.message) {
-                document.getElementById('editableDiv')!.innerHTML = load_paragraph.message;
+                // document.getElementById('editableDiv')!.innerHTML = load_paragraph.message;
+                document.getElementById('editableDiv')!.innerHTML = "<ul class='list-disc'><li>test</li><li>test</li></ul>hiya";
             }
         });
     });
@@ -130,9 +162,32 @@ export default function Listen() {
                 id='editableDiv'
                 contentEditable={true}
                 onInput={handleInput}
-                class="w-full border-2 border-gray-300 rounded-md p-4"
+                class="w-full border-2 border-gray-300 rounded-md px-8 py-4 min-h-[80dvh]"
                 ></div>
             </main>
         </>
     );
-  };
+};
+
+
+function getCaretCharOffset(element: any) {
+    var caretOffset = 0;
+    if (window.getSelection) {
+      var range = window.getSelection()!.getRangeAt(0);
+      var preCaretRange = range.cloneRange();
+      preCaretRange.selectNodeContents(element);
+      preCaretRange.setEnd(range.endContainer, range.endOffset);
+      caretOffset = preCaretRange.toString().length;
+    } 
+    // @ts-ignore
+    else if (document!.selection && document.selection.type != "Control") {
+      // @ts-ignore
+      var textRange = document.selection.createRange();
+      // @ts-ignore
+      var preCaretTextRange = document.body.createTextRange();
+      preCaretTextRange.moveToElementText(element);
+      preCaretTextRange.setEndPoint("EndToEnd", textRange);
+      caretOffset = preCaretTextRange.text.length;
+    }
+    return caretOffset;
+}
