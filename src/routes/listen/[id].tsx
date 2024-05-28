@@ -4,6 +4,7 @@ import { Title } from '@solidjs/meta';
 import HowToUse from '~/components/HowToUse';
 import { bulletlist } from '~/components/editorFuncs/bulletList';
 import { numberlist } from '~/components/editorFuncs/numberList';
+import { checklist } from '~/components/editorFuncs/checkList';
 
 export default function Listen() {
 
@@ -48,19 +49,27 @@ export default function Listen() {
                     body: JSON.stringify({ 
                         content:  paragraph(),
                         channel: channelID,
-                        sessionID: sessionID
+                        sessionID: sessionID,
+                        checkboxStates: checkboxStates.toString()
                     })
                 });
             }
         }, debounceTime);
     };
 
+
+    let checkboxStates: boolean[] = [];
     function logUpdate(para: string) {
 
         // "-&nbsp;" then change into a bullet point list
         para = bulletlist(para);
         // "1.&nbsp;" then change into a numbered list
         para = numberlist(para);
+        // "checklist&nbsp;" then change into a checklist
+        const para_checkboxstates = checklist(para, checkboxStates);
+        console.log(para_checkboxstates)
+        checkboxStates = para_checkboxstates[1];
+        para = para_checkboxstates[0];
 
         fetch(`/api/newevent`, {
             method: 'POST',
@@ -101,6 +110,7 @@ export default function Listen() {
         };
         document.body.appendChild(script);
 
+        const editableDiv = document.getElementById('editableDiv')!;
         const res = await fetch(`/api/getdoc`, {
             method: 'POST',
             body: JSON.stringify({ 
@@ -111,8 +121,30 @@ export default function Listen() {
         res.json().then(data => {
             const load_paragraph = JSON.parse(data.body);
             if (load_paragraph.message) {
-                document.getElementById('editableDiv')!.innerHTML = load_paragraph.message;
+                editableDiv.innerHTML = load_paragraph.message;
             }
+            if (load_paragraph.checkboxStates) {
+                checkboxStates = load_paragraph.checkboxStates.split(',');
+                for (var x in checkboxStates) {
+                    // @ts-ignore
+                    checkboxStates[x] = checkboxStates[x] == 'true';
+                }
+            }
+            const inputElements = editableDiv.querySelectorAll('input.checkbox');
+            if (checkboxStates.length != inputElements.length) {
+                while (checkboxStates.length < inputElements.length) {
+                    checkboxStates.push(false);
+                }
+            }
+            console.log(inputElements, checkboxStates);
+            inputElements.forEach((input, index) => {
+                // @ts-ignore
+                input.checked = checkboxStates[index];
+                input.addEventListener('change', () => {
+                    // @ts-ignore
+                    checkboxStates[index] = input.checked;
+                });
+            });
         });
     });
 

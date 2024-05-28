@@ -11,12 +11,12 @@ export async function POST(event: APIEvent) {
     });
 
     const res = await db.execute({
-        sql: "SELECT content FROM documents WHERE id = ?",
+        sql: "SELECT content, checkboxStates FROM documents WHERE id = ?",
         args: [body.channel],
     });
 
     return {
         status: 200,
-        body: JSON.stringify({ message: res.rows[0].content })
+        body: JSON.stringify({ message: res.rows[0].content, checkboxStates: res.rows[0].checkboxStates })
     };
 }
