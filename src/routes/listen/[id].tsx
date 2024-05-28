@@ -2,6 +2,8 @@ import { createSignal, onCleanup, onMount } from 'solid-js';
 import { useParams } from "@solidjs/router";
 import { Title } from '@solidjs/meta';
 import HowToUse from '~/components/HowToUse';
+import { bulletlist } from '~/components/editorFuncs/bulletList';
+import { numberlist } from '~/components/editorFuncs/numberList';
 
 export default function Listen() {
 
@@ -56,64 +58,9 @@ export default function Listen() {
     function logUpdate(para: string) {
 
         // "-&nbsp;" then change into a bullet point list
-        if (para.indexOf("<div>-&nbsp;</div>") > -1 || para == "-&nbsp;") {
-            const editableDiv = document.getElementById('editableDiv')!;
-            const caretPos = getCaretCharOffset(editableDiv);
-            console.log(caretPos);
-            para = para.replace("-&nbsp;", "<ul class='list-disc'><li></li></ul>");
-            editableDiv.innerHTML = para;
-            const ulElements = editableDiv.querySelectorAll('ul.list-disc');
-            if (ulElements.length > 0) {
-                let ulIndex = 0;
-                for (let i = 0; i < ulElements.length; i++) {
-                    const ulPosition = getCaretCharOffset(ulElements[i]);
-                    if (caretPos > ulPosition) {
-                        ulIndex = i + 1;
-                    } else {
-                        break;
-                    }
-                }
-                const range = document.createRange();
-                range.setStartBefore(ulElements[Math.min(ulIndex, ulElements.length - 1)]);
-                range.collapse(true);
-                const sel = window.getSelection()!;
-                sel.removeAllRanges();
-                sel.addRange(range);
-                editableDiv.focus();
-            } else {
-                console.error("No <ul> elements found after replacing '-&nbsp;'");
-            }
-        }
-
+        para = bulletlist(para);
         // "1.&nbsp;" then change into a numbered list
-        if (para.indexOf("<div>1.&nbsp;</div>") > -1 || para == "1.&nbsp;") {
-            const editableDiv = document.getElementById('editableDiv')!;
-            const caretPos = getCaretCharOffset(editableDiv);
-            console.log(caretPos);
-            para = para.replace("1.&nbsp;", "<ol class='list-decimal'><li></li></ol>");
-            editableDiv.innerHTML = para;
-            const olElements = editableDiv.querySelectorAll('ol.list-decimal');
-            if (olElements.length > 0) {
-                let olIndex = 0;
-                for (let i = 0; i < olElements.length; i++) {
-                    const olPosition = getCaretCharOffset(olElements[i]);
-                    if (caretPos > olPosition) {
-                        olIndex = i + 1;
-                    } else {
-                        break;
-                    }
-                }
-                const range = document.createRange();
-                range.setStartBefore(olElements[Math.min(olIndex, olElements.length - 1)]);
-                range.collapse(true);
-                const sel = window.getSelection()!;
-                sel.removeAllRanges();
-                sel.addRange(range);
-                editableDiv.focus();
-            } else {
-                console.error("No <ol> elements found after replacing '1.&nbsp;'");
-            }
-        }
+        para = numberlist(para);
 
         fetch(`/api/newevent`, {
             method: 'POST',
@@ -199,26 +146,3 @@ export default function Listen() {
         </>
     );
 };
-
-
-function getCaretCharOffset(element: any) {
-    var caretOffset = 0;
-    if (window.getSelection) {
-      var range = window.getSelection()!.getRangeAt(0);
-      var preCaretRange = range.cloneRange();
-      preCaretRange.selectNodeContents(element);
-      preCaretRange.setEnd(range.endContainer, range.endOffset);
-      caretOffset = preCaretRange.toString().length;
-    } 
-    // @ts-ignore
-    else if (document!.selection && document.selection.type != "Control") {
-      // @ts-ignore
-      var textRange = document.selection.createRange();
-      // @ts-ignore
-      var preCaretTextRange = document.body.createTextRange();
-      preCaretTextRange.moveToElementText(element);
-      preCaretTextRange.setEndPoint("EndToEnd", textRange);
-      caretOffset = preCaretTextRange.text.length;
-    }
-    return caretOffset;
-}
