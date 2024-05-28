@@ -1,6 +1,7 @@
 import { createSignal, onCleanup, onMount } from 'solid-js';
 import { useParams } from "@solidjs/router";
 import { Title } from '@solidjs/meta';
+import HowToUse from '~/components/HowToUse';
 
 export default function Listen() {
 
@@ -54,7 +55,7 @@ export default function Listen() {
 
     function logUpdate(para: string) {
 
-        // if last 7 characters are "-&nbsp;" then change into a bullet point list (TODO: make this configurable)
+        // "-&nbsp;" then change into a bullet point list
         if (para.indexOf("<div>-&nbsp;</div>") > -1 || para == "-&nbsp;") {
             const editableDiv = document.getElementById('editableDiv')!;
             const caretPos = getCaretCharOffset(editableDiv);
@@ -83,8 +84,36 @@ export default function Listen() {
                 console.error("No <ul> elements found after replacing '-&nbsp;'");
             }
         }
-        
-        
+
+        // "1.&nbsp;" then change into a numbered list
+        if (para.indexOf("<div>1.&nbsp;</div>") > -1 || para == "1.&nbsp;") {
+            const editableDiv = document.getElementById('editableDiv')!;
+            const caretPos = getCaretCharOffset(editableDiv);
+            console.log(caretPos);
+            para = para.replace("1.&nbsp;", "<ol class='list-decimal'><li></li></ol>");
+            editableDiv.innerHTML = para;
+            const olElements = editableDiv.querySelectorAll('ol.list-decimal');
+            if (olElements.length > 0) {
+                let olIndex = 0;
+                for (let i = 0; i < olElements.length; i++) {
+                    const olPosition = getCaretCharOffset(olElements[i]);
+                    if (caretPos > olPosition) {
+                        olIndex = i + 1;
+                    } else {
+                        break;
+                    }
+                }
+                const range = document.createRange();
+                range.setStartBefore(olElements[Math.min(olIndex, olElements.length - 1)]);
+                range.collapse(true);
+                const sel = window.getSelection()!;
+                sel.removeAllRanges();
+                sel.addRange(range);
+                editableDiv.focus();
+            } else {
+                console.error("No <ol> elements found after replacing '1.&nbsp;'");
+            }
+        }
 
         fetch(`/api/newevent`, {
             method: 'POST',
@@ -135,15 +164,14 @@ export default function Listen() {
         res.json().then(data => {
             const load_paragraph = JSON.parse(data.body);
             if (load_paragraph.message) {
-                // document.getElementById('editableDiv')!.innerHTML = load_paragraph.message;
-                document.getElementById('editableDiv')!.innerHTML = "<ul class='list-disc'><li>test</li><li>test</li></ul>hiya";
+                document.getElementById('editableDiv')!.innerHTML = load_paragraph.message;
             }
         });
     });
 
-    let editableDiv;
+    let editableDivRef;
     onCleanup(() => {
-      editableDiv = null;
+        editableDivRef = null;
     });
     const handleInput = (e: { currentTarget: { innerHTML: any; }; }) => {
       const newTextContent = e.currentTarget.innerHTML;
@@ -154,11 +182,14 @@ export default function Listen() {
         <>
             <Title>CoScribe - Pusher Test</Title>
             <main class="max-w-7xl m-auto mt-10">
-                <h1 class="header">Pusher Test</h1>
-                <p>Listening to channel <code>{channelID}</code></p> 
+                <div class='flex flex-col items-center justify-center mb-8'>
+                    <h1 class="header">Pusher Test</h1>
+                    <p>Listening to channel <code>{channelID}</code></p> 
+                    <HowToUse />
+                </div>
                 {/* <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={saveParagraph}>Save</button> */}
                 <div
-                ref={el => editableDiv = el}
+                ref={el => editableDivRef = el}
                 id='editableDiv'
                 contentEditable={true}
                 onInput={handleInput}
