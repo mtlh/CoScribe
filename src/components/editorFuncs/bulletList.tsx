@@ -1,12 +1,15 @@
 import { getCaretCharOffset } from "./caretOffset";
+import { persistState } from "./persistState";
 
-export function bulletlist(para: string) {
+export function bulletlist(para: string, checkboxStates: boolean[]): [string, boolean[]] {
     if (para.indexOf("<div>-&nbsp;</div>") > -1 || para == "-&nbsp;") {
         const editableDiv = document.getElementById('editableDiv')!;
         const caretPos = getCaretCharOffset(editableDiv);
         console.log(caretPos);
         para = para.replace("-&nbsp;", "<ul class='list-disc'><li></li></ul>");
         editableDiv.innerHTML = para;
+        persistState(editableDiv, checkboxStates);
+
         const ulElements = editableDiv.querySelectorAll('ul.list-disc');
         if (ulElements.length > 0) {
             let ulIndex = 0;
@@ -29,5 +32,5 @@ export function bulletlist(para: string) {
             console.error("No <ul> elements found after replacing '-&nbsp;'");
         }
     }
-    return para;
+    return [para, checkboxStates];
 }

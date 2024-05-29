@@ -59,15 +59,19 @@ export default function Listen() {
 
 
     let checkboxStates: boolean[] = [];
-    function logUpdate(para: string) {
+    function logUpdate(para: string, currentPara: string) {
 
+        let para_checkboxstates;
         // "-&nbsp;" then change into a bullet point list
-        para = bulletlist(para);
+        para_checkboxstates = bulletlist(para, checkboxStates);
+        checkboxStates = para_checkboxstates[1];
+        para = para_checkboxstates[0];
         // "1.&nbsp;" then change into a numbered list
-        para = numberlist(para);
+        para_checkboxstates = numberlist(para, checkboxStates);
+        checkboxStates = para_checkboxstates[1];
+        para = para_checkboxstates[0];
         // "checklist&nbsp;" then change into a checklist
-        const para_checkboxstates = checklist(para, checkboxStates);
-        console.log(para_checkboxstates)
+        para_checkboxstates = checklist(para, checkboxStates, currentPara);
         checkboxStates = para_checkboxstates[1];
         para = para_checkboxstates[0];
 
@@ -122,6 +126,7 @@ export default function Listen() {
             const load_paragraph = JSON.parse(data.body);
             if (load_paragraph.message) {
                 editableDiv.innerHTML = load_paragraph.message;
+                setParagraph(load_paragraph.message);
             }
             if (load_paragraph.checkboxStates) {
                 checkboxStates = load_paragraph.checkboxStates.split(',');
@@ -135,8 +140,10 @@ export default function Listen() {
                 while (checkboxStates.length < inputElements.length) {
                     checkboxStates.push(false);
                 }
+                while (checkboxStates.length > inputElements.length) {
+                    checkboxStates.pop();
+                }
             }
-            console.log(inputElements, checkboxStates);
             inputElements.forEach((input, index) => {
                 // @ts-ignore
                 input.checked = checkboxStates[index];
@@ -154,7 +161,7 @@ export default function Listen() {
     });
     const handleInput = (e: { currentTarget: { innerHTML: any; }; }) => {
       const newTextContent = e.currentTarget.innerHTML;
-      logUpdate(newTextContent);
+      logUpdate(newTextContent, paragraph());
     };
   
     return (

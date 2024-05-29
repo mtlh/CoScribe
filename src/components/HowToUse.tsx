@@ -49,6 +49,7 @@ export default function HowToUse() {
                         <h2 class="header mb-4">How to use.</h2>
                         <p class="mb-4">Bullet points are created by typing "-&nbsp;" on a new line.</p>
                         <p class="mb-4">Numbered lists are created by typing "1.&nbsp;" on a new line.</p>
+                        <p class="mb-4">Checklists are created by typing "checklist&nbsp;" on a new line.</p>
                         <button
                             onClick={closeModal}
                             class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700 focus:outline-none"

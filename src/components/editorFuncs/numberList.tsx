@@ -1,12 +1,14 @@
 import { getCaretCharOffset } from "./caretOffset";
+import { persistState } from "./persistState";
 
-export function numberlist(para: string) {
+export function numberlist(para: string, checkboxStates: boolean[]): [string, boolean[]] {
     if (para.indexOf("<div>1.&nbsp;</div>") > -1 || para == "1.&nbsp;") {
         const editableDiv = document.getElementById('editableDiv')!;
         const caretPos = getCaretCharOffset(editableDiv);
         console.log(caretPos);
         para = para.replace("1.&nbsp;", "<ol class='list-decimal'><li></li></ol>");
         editableDiv.innerHTML = para;
+        persistState(editableDiv, checkboxStates);
         const olElements = editableDiv.querySelectorAll('ol.list-decimal');
         if (olElements.length > 0) {
             let olIndex = 0;
@@ -29,5 +31,5 @@ export function numberlist(para: string) {
             console.error("No <ol> elements found after replacing '1.&nbsp;'");
         }
     }
-    return para;
+    return [para, checkboxStates];
 }
