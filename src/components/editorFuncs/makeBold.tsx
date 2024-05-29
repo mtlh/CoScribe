@@ -42,7 +42,12 @@ export function makeHeading() {
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
       const parentElement = range.commonAncestorContainer.parentElement!;
-      parentElement.classList.toggle("h1");
+      if (parentElement.classList.contains("h1")) {
+        parentElement.classList.toggle("h1");
+      } else {
+        removeTextClasses(parentElement);
+        parentElement.classList.add("h1");
+      }
     }
 }
 
@@ -51,6 +56,21 @@ export function makeBase() {
   if (selection && selection.rangeCount > 0) {
     const range = selection.getRangeAt(0);
     const parentElement = range.commonAncestorContainer.parentElement!;
-    parentElement.classList.toggle("text-base");
+    if (parentElement.classList.contains("text-base")) {
+      parentElement.classList.toggle("text-base");
+    } else {
+      removeTextClasses(parentElement);
+      parentElement.classList.add("text-base");
+    }
   }
+}
+
+function removeTextClasses(element: HTMLElement) {
+  element.classList.remove("h1");
+  element.classList.remove("h2");
+  element.classList.remove("h3");
+  element.classList.remove("h4");
+  element.classList.remove("h5");
+  element.classList.remove("h6");
+  element.classList.remove("text-base");
 }

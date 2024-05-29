@@ -1,4 +1,4 @@
-import { createEffect, createSignal, onCleanup, onMount } from 'solid-js';
+import { createSignal, onCleanup, onMount } from 'solid-js';
 import { useParams } from "@solidjs/router";
 import { Title } from '@solidjs/meta';
 import HowToUse from '~/components/HowToUse';
@@ -6,6 +6,9 @@ import { bulletlist } from '~/components/editorFuncs/bulletList';
 import { numberlist } from '~/components/editorFuncs/numberList';
 import { checklist } from '~/components/editorFuncs/checkList';
 import { makeBase, makeHeading, toggleBold, toggleItalic, toggleUnderline } from '~/components/editorFuncs/makeBold';
+import { Base, Bold, H1, Italic, Underline } from '~/components/icons/basic';
+import { baseText } from '~/components/editorFuncs/baseText';
+import { h1 } from '~/components/editorFuncs/h1';
 
 export default function Listen() {
 
@@ -75,6 +78,10 @@ export default function Listen() {
         para_checkboxstates = checklist(para, checkboxStates, currentPara);
         checkboxStates = para_checkboxstates[1];
         para = para_checkboxstates[0];
+        // "base&nbsp;" then change into base text
+        baseText(para, checkboxStates);
+        // "h1&nbsp;" then change into h1 text
+        h1(para, checkboxStates);
 
         fetch(`/api/newevent`, {
             method: 'POST',
@@ -174,12 +181,22 @@ export default function Listen() {
                         <h1 class="header">Pusher Test</h1>
                         <p>Listening to channel <code>{channelID}</code></p> 
                     </div>
-                    <div class="flex flex-row justify-center gap-2 col-span-1">
-                        <button class="bg-slate-200 p-2 w-20 h-10 m-auto rounded" onclick={() => {toggleBold(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>bold</button>
-                        <button class="bg-slate-200 p-2 w-20 h-10 m-auto rounded" onclick={() => {toggleUnderline(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>underline</button>
-                        <button class="bg-slate-200 p-2 w-20 h-10 m-auto rounded" onclick={() => {toggleItalic(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>italic</button>
-                        <button class="bg-slate-200 p-2 w-20 h-10 m-auto rounded" onclick={() => {makeHeading(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>h1</button>
-                        <button class="bg-slate-200 p-2 w-20 h-10 m-auto rounded" onclick={() => {makeBase(); logUpdate(paragraph(), paragraph());}}>Base</button>
+                    <div class="flex flex-row justify-center col-span-1">
+                        <button class="bg-slate-200 p-2 my-auto rounded-l-lg" onclick={() => {toggleBold(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>
+                            <Bold />
+                        </button>
+                        <button class="bg-slate-200 p-2 my-auto" onclick={() => {toggleUnderline(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>
+                            <Underline />
+                        </button>
+                        <button class="bg-slate-200 p-2 my-auto" onclick={() => {toggleItalic(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>
+                            <Italic />
+                        </button>
+                        <button class="bg-slate-200 p-2 my-auto" onclick={() => {makeHeading(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>
+                            <H1 />
+                        </button>
+                        <button class="bg-slate-200 p-2 my-auto rounded-r-lg" onclick={() => {makeBase(); logUpdate(paragraph(), paragraph());}}>
+                            <Base />
+                        </button>
                     </div>
                     <div class="col-span-1 m-auto">
                         <HowToUse />
