@@ -1,10 +1,11 @@
-import { createSignal, onCleanup, onMount } from 'solid-js';
+import { createEffect, createSignal, onCleanup, onMount } from 'solid-js';
 import { useParams } from "@solidjs/router";
 import { Title } from '@solidjs/meta';
 import HowToUse from '~/components/HowToUse';
 import { bulletlist } from '~/components/editorFuncs/bulletList';
 import { numberlist } from '~/components/editorFuncs/numberList';
 import { checklist } from '~/components/editorFuncs/checkList';
+import { makeBase, makeHeading, toggleBold, toggleItalic, toggleUnderline } from '~/components/editorFuncs/makeBold';
 
 export default function Listen() {
 
@@ -168,18 +169,29 @@ export default function Listen() {
         <>
             <Title>CoScribe - Pusher Test</Title>
             <main class="max-w-7xl m-auto mt-10">
-                <div class='flex flex-col items-center justify-center mb-8'>
-                    <h1 class="header">Pusher Test</h1>
-                    <p>Listening to channel <code>{channelID}</code></p> 
-                    <HowToUse />
+                <div class='grid grid-cols-1 md:grid-cols-4 gap-8 mb-2'>
+                    <div class="col-span-2">
+                        <h1 class="header">Pusher Test</h1>
+                        <p>Listening to channel <code>{channelID}</code></p> 
+                    </div>
+                    <div class="flex flex-row justify-center gap-2 col-span-1">
+                        <button class="bg-slate-200 p-2 w-20 h-10 m-auto rounded" onclick={() => {toggleBold(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>bold</button>
+                        <button class="bg-slate-200 p-2 w-20 h-10 m-auto rounded" onclick={() => {toggleUnderline(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>underline</button>
+                        <button class="bg-slate-200 p-2 w-20 h-10 m-auto rounded" onclick={() => {toggleItalic(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>italic</button>
+                        <button class="bg-slate-200 p-2 w-20 h-10 m-auto rounded" onclick={() => {makeHeading(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>h1</button>
+                        <button class="bg-slate-200 p-2 w-20 h-10 m-auto rounded" onclick={() => {makeBase(); logUpdate(paragraph(), paragraph());}}>Base</button>
+                    </div>
+                    <div class="col-span-1 m-auto">
+                        <HowToUse />
+                    </div> 
                 </div>
                 {/* <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={saveParagraph}>Save</button> */}
                 <div
-                ref={el => editableDivRef = el}
-                id='editableDiv'
-                contentEditable={true}
-                onInput={handleInput}
-                class="w-full border-2 border-gray-300 rounded-md px-8 py-4 min-h-[80dvh]"
+                    ref={el => editableDivRef = el}
+                    id='editableDiv'
+                    contentEditable={true}
+                    onInput={handleInput}
+                    class="w-full border-2 border-gray-300 rounded-md px-8 py-4 min-h-[80dvh]"
                 ></div>
             </main>
         </>

@@ -15,7 +15,7 @@ export default function App() {
               <div class="flex items-center md:gap-10 gap-6">
                 <a class="flex items-center" href="/">
                   <img src="/logo.svg" alt="CoScribe Logo" class="h-10 mr-2" />
-                  <h1 class="header"><em class="text-blue-500">Co</em>Scribe</h1>
+                  <h1 class="h1"><em class="text-blue-500">Co</em>Scribe</h1>
                 </a>
                 <a href="/about" class="hover:underline">About</a>
                 <a href="/listen/1" class="hover:underline">Listen (1)</a>
