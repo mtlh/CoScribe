@@ -1,13 +1,17 @@
 import { getCaretCharOffset } from "./caretOffset";
+import { getChildrenAndHighlightCaret } from "./getChildrenHighlight";
 import { persistState } from "./persistState";
 
 export function numberlist(para: string, checkboxStates: boolean[]): [string, boolean[]] {
-    if (para.indexOf("<div>1.&nbsp;</div>") > -1 || para == "1.&nbsp;") {
-        const editableDiv = document.getElementById('editableDiv')!;
+    const editableDiv = document.getElementById('editableDiv')!;
+    const { children, caretChildIndex } = getChildrenAndHighlightCaret(editableDiv);
+
+    if (/<div[^>]*>1.&nbsp;<\/div>/.test(children[caretChildIndex].outerHTML) || para == "1.&nbsp;") {
         const caretPos = getCaretCharOffset(editableDiv);
-        console.log(caretPos);
-        para = para.replace("1.&nbsp;", "<ol class='list-decimal'><li></li></ol>");
-        editableDiv.innerHTML = para;
+        const newElement = document.createElement('ol');
+        newElement.classList.add('list-decimal');
+        newElement.innerHTML = "<li></li>";
+        editableDiv.replaceChild(newElement, children[caretChildIndex]);
         persistState(editableDiv, checkboxStates);
         const olElements = editableDiv.querySelectorAll('ol.list-decimal');
         if (olElements.length > 0) {

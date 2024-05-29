@@ -1,13 +1,17 @@
 import { getCaretCharOffset } from "./caretOffset";
+import { getChildrenAndHighlightCaret } from "./getChildrenHighlight";
 import { persistState } from "./persistState";
 
 export function bulletlist(para: string, checkboxStates: boolean[]): [string, boolean[]] {
-    if (para.indexOf("<div>-&nbsp;</div>") > -1 || para == "-&nbsp;") {
-        const editableDiv = document.getElementById('editableDiv')!;
-        const caretPos = getCaretCharOffset(editableDiv);
-        console.log(caretPos);
-        para = para.replace("-&nbsp;", "<ul class='list-disc'><li></li></ul>");
-        editableDiv.innerHTML = para;
+    const editableDiv = document.getElementById('editableDiv')!;
+    const caretPos = getCaretCharOffset(editableDiv);
+    const { children, caretChildIndex } = getChildrenAndHighlightCaret(editableDiv);
+    
+    if (/<div[^>]*>-&nbsp;<\/div>/.test(children[caretChildIndex].outerHTML) || para == "-&nbsp;") {
+        const newElement = document.createElement('ul');
+        newElement.classList.add('list-disc');
+        newElement.innerHTML = "<li></li>";
+        editableDiv.replaceChild(newElement, children[caretChildIndex]);
         persistState(editableDiv, checkboxStates);
 
         const ulElements = editableDiv.querySelectorAll('ul.list-disc');

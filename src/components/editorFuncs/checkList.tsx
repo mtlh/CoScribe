@@ -26,7 +26,7 @@ export function checklist(para: string, checkboxStates: boolean[], currentPara: 
 
     // console.log(children[caretChildIndex].outerHTML, children[caretChildIndex-1].outerHTML.includes(`<input type="checkbox" class="checkbox">`))
     if (children && caretChildIndex > 0) {
-      if (children[caretChildIndex].outerHTML == "<div><br></div>" && children[caretChildIndex-1].outerHTML.includes(`<input type="checkbox" class="checkbox">`)) { 
+      if (/<div[^>]*><br><\/div>/.test(children[caretChildIndex].outerHTML) && children[caretChildIndex-1].outerHTML.includes(`<input type="checkbox" class="checkbox">`)) { 
         const newElement = document.createElement("div");
         const newInput = document.createElement("input");
         newInput.setAttribute("type", "checkbox");
@@ -85,11 +85,11 @@ export function checklist(para: string, checkboxStates: boolean[], currentPara: 
     //     }
     // }
 
-    if (para.indexOf("<div>checklist&nbsp;</div>") > -1 || para == "checklist&nbsp;") {
-        para = para.replace("checklist&nbsp;", "<input type='checkbox' class='checkbox'> <div></div></input>");
-        editableDiv.innerHTML = para;
+    if (/<div[^>]*>checklist&nbsp;<\/div>/.test(children[caretChildIndex].outerHTML) || para == "checklist&nbsp;") {
+        const newElement = document.createElement("div");
+        newElement.innerHTML = "<input type='checkbox' class='checkbox'> <div></div></input>";
+        editableDiv.replaceChild(newElement, children[caretChildIndex]);
         persistState(editableDiv, checkboxStates);
-
         const inputElements = editableDiv.querySelectorAll('input.checkbox');
         if (inputElements.length > 0) {
             let inputIndex = 0;
