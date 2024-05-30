@@ -85,31 +85,40 @@ export function checklist(para: string, checkboxStates: boolean[], currentPara: 
     //     }
     // }
 
-    if (/<div[^>]*>checklist&nbsp;<\/div>/.test(children[caretChildIndex].outerHTML) || para == "checklist&nbsp;") {
-        const newElement = document.createElement("div");
-        newElement.innerHTML = "<input type='checkbox' class='checkbox'> <div></div></input>";
-        editableDiv.replaceChild(newElement, children[caretChildIndex]);
+    if (para == "checklist&nbsp;") {
+        editableDiv.innerHTML = "<div><input type='checkbox' class='checkbox'></div>";
+        para = "";
         persistState(editableDiv, checkboxStates);
-        const inputElements = editableDiv.querySelectorAll('input.checkbox');
-        if (inputElements.length > 0) {
-            let inputIndex = 0;
-            for (let i = 0; i < inputElements.length; i++) {
-                const inputPosition = getCaretCharOffset(inputElements[i]);
-                if (caretPos > inputPosition) {
-                    inputIndex = i + 1;
-                } else {
-                    break;
+        return [para, checkboxStates];
+    }
+
+    if (children.length > 0) {
+        if (/<div[^>]*>checklist&nbsp;<\/div>/.test(children[caretChildIndex].outerHTML)) {
+            const newElement = document.createElement("div");
+            newElement.innerHTML = "<input type='checkbox' class='checkbox'> <div></div></input>";
+            editableDiv.replaceChild(newElement, children[caretChildIndex]);
+            persistState(editableDiv, checkboxStates);
+            const inputElements = editableDiv.querySelectorAll('input.checkbox');
+            if (inputElements.length > 0) {
+                let inputIndex = 0;
+                for (let i = 0; i < inputElements.length; i++) {
+                    const inputPosition = getCaretCharOffset(inputElements[i]);
+                    if (caretPos > inputPosition) {
+                        inputIndex = i + 1;
+                    } else {
+                        break;
+                    }
                 }
+                const range = document.createRange();
+                range.setStartAfter(inputElements[Math.min(inputIndex, inputElements.length - 1)]);
+                range.collapse(true);
+                const sel = window.getSelection()!;
+                sel.removeAllRanges();
+                sel.addRange(range);
+                editableDiv.focus();
+            } else {
+                console.error("No <input> elements found after replacing 'checklist&nbsp;'");
             }
-            const range = document.createRange();
-            range.setStartAfter(inputElements[Math.min(inputIndex, inputElements.length - 1)]);
-            range.collapse(true);
-            const sel = window.getSelection()!;
-            sel.removeAllRanges();
-            sel.addRange(range);
-            editableDiv.focus();
-        } else {
-            console.error("No <input> elements found after replacing 'checklist&nbsp;'");
         }
     }
     return [para, checkboxStates];

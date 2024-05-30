@@ -8,6 +8,13 @@ export function h1(para: string, checkboxStates: boolean[]) {
     const caretPos = getCaretCharOffset(editableDiv);
     const { children, caretChildIndex } = getChildrenAndHighlightCaret(editableDiv);
 
+    if (para == "h1&nbsp;") {
+        editableDiv.innerHTML = "<div class='h1'><br></div>";
+        para = "";
+        persistState(editableDiv, checkboxStates);
+        return [para, checkboxStates];
+    }
+
     if (children && caretChildIndex > 0) {
       if (/<div[^>]*>h1&nbsp;<\/div>/.test(children[caretChildIndex].outerHTML)) {
             const newElement = document.createElement('div');

@@ -9,6 +9,7 @@ import { makeBase, makeHeading, toggleBold, toggleItalic, toggleUnderline } from
 import { Base, Bold, H1, Italic, Underline } from '~/components/icons/basic';
 import { baseText } from '~/components/editorFuncs/baseText';
 import { h1 } from '~/components/editorFuncs/h1';
+import { table } from '~/components/editorFuncs/table';
 
 export default function Listen() {
 
@@ -82,6 +83,8 @@ export default function Listen() {
         baseText(para, checkboxStates);
         // "h1&nbsp;" then change into h1 text
         h1(para, checkboxStates);
+        // "table&nbsp;" then change into table
+        table(para, checkboxStates);
 
         fetch(`/api/newevent`, {
             method: 'POST',
