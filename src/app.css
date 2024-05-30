@@ -23,9 +23,9 @@ body {
 }
 
 .table {
-  @apply table-auto w-full border border-gray-300 rounded-md;
+  @apply table-auto w-full border border-gray-300 rounded-md p-4;
 }
 
 .table td {
-  @apply border border-gray-800 rounded-md;
+  @apply border border-gray-800 rounded-md p-2;
 }

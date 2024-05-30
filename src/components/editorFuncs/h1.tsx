@@ -6,7 +6,7 @@ export function h1(para: string, checkboxStates: boolean[]) {
 
     const editableDiv = document.getElementById('editableDiv')!;
     const caretPos = getCaretCharOffset(editableDiv);
-    const { children, caretChildIndex } = getChildrenAndHighlightCaret(editableDiv);
+    let { children, caretChildIndex } = getChildrenAndHighlightCaret(editableDiv);
 
     if (para == "h1&nbsp;") {
         editableDiv.innerHTML = "<div class='h1'><br></div>";
@@ -16,7 +16,10 @@ export function h1(para: string, checkboxStates: boolean[]) {
     }
 
     if (children && caretChildIndex > 0) {
-      if (/<div[^>]*>h1&nbsp;<\/div>/.test(children[caretChildIndex].outerHTML)) {
+        if (caretChildIndex == -1) {
+            caretChildIndex = children.length - 1;
+        }
+        if (/<div[^>]*>h1&nbsp;<\/div>/.test(children[caretChildIndex].outerHTML)) {
             const newElement = document.createElement('div');
             newElement.innerHTML = "<br>";
             newElement.classList.add('h1');

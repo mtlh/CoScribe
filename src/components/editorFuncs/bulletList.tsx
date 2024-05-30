@@ -5,7 +5,7 @@ import { persistState } from "./persistState";
 export function bulletlist(para: string, checkboxStates: boolean[]): [string, boolean[]] {
     const editableDiv = document.getElementById('editableDiv')!;
     const caretPos = getCaretCharOffset(editableDiv);
-    const { children, caretChildIndex } = getChildrenAndHighlightCaret(editableDiv);
+    let { children, caretChildIndex } = getChildrenAndHighlightCaret(editableDiv);
 
     if (para == "-&nbsp;") {
         editableDiv.innerHTML = "<ul class='list-disc'><li></li></ul>";
@@ -15,6 +15,9 @@ export function bulletlist(para: string, checkboxStates: boolean[]): [string, bo
     }
 
     if (children.length > 0) {
+        if (caretChildIndex == -1) {
+            caretChildIndex = children.length - 1;
+        }
         if (/<div[^>]*>-&nbsp;<\/div>/.test(children[caretChildIndex].outerHTML)) {
             const newElement = document.createElement('ul');
             newElement.classList.add('list-disc');

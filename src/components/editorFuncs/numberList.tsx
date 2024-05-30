@@ -4,7 +4,7 @@ import { persistState } from "./persistState";
 
 export function numberlist(para: string, checkboxStates: boolean[]): [string, boolean[]] {
     const editableDiv = document.getElementById('editableDiv')!;
-    const { children, caretChildIndex } = getChildrenAndHighlightCaret(editableDiv);
+    let { children, caretChildIndex } = getChildrenAndHighlightCaret(editableDiv);
 
     if (para == "1.&nbsp;") {
         editableDiv.innerHTML = "<ol class='list-decimal'><li></li></ol>";
@@ -14,6 +14,9 @@ export function numberlist(para: string, checkboxStates: boolean[]): [string, bo
     }
     
     if (children.length > 0) {
+        if (caretChildIndex == -1) {
+            caretChildIndex = children.length - 1;
+        }
         if (/<div[^>]*>1.&nbsp;<\/div>/.test(children[caretChildIndex].outerHTML)) {
             const caretPos = getCaretCharOffset(editableDiv);
             const newElement = document.createElement('ol');

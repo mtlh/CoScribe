@@ -20,7 +20,7 @@ export function checklist(para: string, checkboxStates: boolean[], currentPara: 
     const editableDiv = document.getElementById('editableDiv')!;
     const caretPos = getCaretCharOffset(editableDiv);
 
-    const { children, caretChildIndex } = getChildrenAndHighlightCaret(editableDiv);
+    let { children, caretChildIndex } = getChildrenAndHighlightCaret(editableDiv);
     console.log("Child elements:", children);
     console.log("Index of highlighted child:", caretChildIndex);
 
@@ -93,6 +93,9 @@ export function checklist(para: string, checkboxStates: boolean[], currentPara: 
     }
 
     if (children.length > 0) {
+        if (caretChildIndex == -1) {
+            caretChildIndex = children.length - 1;
+        }
         if (/<div[^>]*>checklist&nbsp;<\/div>/.test(children[caretChildIndex].outerHTML)) {
             const newElement = document.createElement("div");
             newElement.innerHTML = "<input type='checkbox' class='checkbox'> <div></div></input>";

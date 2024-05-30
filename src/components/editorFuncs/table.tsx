@@ -5,7 +5,7 @@ import { persistState } from "./persistState";
 export function table(para: string, checkboxStates: boolean[]) {
     const editableDiv = document.getElementById('editableDiv')!;
     const caretPos = getCaretCharOffset(editableDiv);
-    const { children, caretChildIndex } = getChildrenAndHighlightCaret(editableDiv);
+    let { children, caretChildIndex } = getChildrenAndHighlightCaret(editableDiv);
 
     if (para == "table&nbsp;") {
         editableDiv.innerHTML = "<table class='table'><tr><td>table</td></tr></table>";
@@ -15,6 +15,10 @@ export function table(para: string, checkboxStates: boolean[]) {
     }
 
     if (children.length > 0) {
+
+        if (caretChildIndex == -1) {
+            caretChildIndex = children.length - 1;
+        }
         console.log(children, children[caretChildIndex], children[caretChildIndex].outerHTML)
 
         if (/<div[^>]*>table&nbsp;<\/div>/.test(children[caretChildIndex].outerHTML)) {
@@ -58,7 +62,7 @@ export function table(para: string, checkboxStates: boolean[]) {
             }
             const newElement = document.createElement('table');
             newElement.classList.add('table');
-            newElement.innerHTML = children[caretChildIndex].innerHTML.replace("insertcol&nbsp;", "");;
+            newElement.innerHTML = children[caretChildIndex].innerHTML.replace("insertrow&nbsp;", "");;
             editableDiv.replaceChild(newElement, children[caretChildIndex]);
             persistState(editableDiv, checkboxStates);
         }
