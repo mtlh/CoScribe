@@ -17,6 +17,9 @@ export async function POST(event: APIEvent) {
 
     return {
         status: 200,
-        body: JSON.stringify({ message: res.rows[0].content, checkboxStates: res.rows[0].checkboxStates })
+        body: JSON.stringify({ 
+            message: res.rows[0].content, 
+            checkboxStates: res.rows[0].checkboxStates
+        })
     };
 }

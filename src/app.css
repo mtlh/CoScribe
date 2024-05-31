@@ -29,3 +29,7 @@ body {
 .table td {
   @apply border border-gray-800 rounded-md p-2;
 }
+
+.tooltip {
+  @apply absolute p-1 rounded border border-blue-800 bg-blue-300 shadow-lg text-sm mt-6 mr-2;
+}

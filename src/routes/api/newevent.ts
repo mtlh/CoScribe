@@ -24,7 +24,9 @@ export async function POST(event: APIEvent) {
     
     pusher.trigger(body.channel, "my-event", {
         message: body.content,
-        sessionID: body.sessionID
+        sessionID: body.sessionID,
+        userID: body.userID,
+        caretPos: body.caretPos
     });
 
     return {

@@ -10,6 +10,8 @@ import { Base, Bold, H1, Italic, Underline } from '~/components/icons/basic';
 import { baseText } from '~/components/editorFuncs/baseText';
 import { h1 } from '~/components/editorFuncs/h1';
 import { table } from '~/components/editorFuncs/table';
+import { getCaretCharOffset } from '~/components/editorFuncs/caretOffset';
+import { findHtmlIndexOfTextIndex } from '~/components/editorFuncs/findHtmlIndexOfTextIndex';
 
 export default function Listen() {
 
@@ -63,6 +65,9 @@ export default function Listen() {
     };
 
 
+    const [showUser, setShowUser] = createSignal(false);
+    const [userID, setUserID] = createSignal('');
+
     let checkboxStates: boolean[] = [];
     function logUpdate(para: string, currentPara: string) {
 
@@ -86,12 +91,46 @@ export default function Listen() {
         // "table&nbsp;" then change into table
         table(para, checkboxStates);
 
+        // get caret position of change
+        const caretPos = getCaretCharOffset(document.getElementById("editableDiv")!);
+        // console.log(caretPos);
+        // const testText = para.replace(/(<([^>]+)>)/gi, "").replace(/&nbsp;/, " ")
+        // console.log(testText, testText.length);
+        // console.log(testText[caretPos-1])
+        // console.log(findHtmlIndexOfTextIndex(para, caretPos-1))
+        // console.log(para[findHtmlIndexOfTextIndex(para.replace(/&nbsp;/, " "), caretPos-1)])
+
+
+        const testingSplit = para.replace(/(<([^>]+)>)/gi, "238917481784911").replace(/&nbsp;/, " ").split("238917481784911"); 
+        console.log(testingSplit)
+
+        let count = 0
+        let depth = 0
+        for (var x in testingSplit) {
+            for (var i = 0; i < testingSplit[x].length; i++) {
+                if (count == caretPos-1) {
+                    console.log("found, " + testingSplit[x][i], x, i)
+                    depth = testingSplit[x].split(testingSplit[x][i]).length - 1
+                    break;
+                }
+                count +=1 
+            }
+        }
+        console.log(depth)
+
+        const existingDiv = document.getElementById('userID');
+        if (existingDiv) {
+            existingDiv.remove();
+        }
+
         fetch(`/api/newevent`, {
             method: 'POST',
             body: JSON.stringify({ 
-                content:  para,
+                content:  para.replace(/&nbsp;/, " "),
                 channel: channelID,
-                sessionID: sessionID
+                sessionID: sessionID,
+                userID: "MHA",
+                caretPos: findHtmlIndexOfTextIndex(para.replace(/&nbsp;/, " "), caretPos-1, depth)
             })
         });
         fetchWithDebounce()
@@ -118,8 +157,18 @@ export default function Listen() {
                 console.log('Received event: ', data);
                 if (data.sessionID != sessionID) {
                     console.log('Not my event');
+
                     setParagraph(data.message)
-                    document.getElementById('editableDiv')!.innerHTML = data.message;
+                    setUserID(data.userID);
+                    setShowUser(true);
+    
+                    const firstHalf = data.message.slice(0, data.caretPos);
+                    const secondHalf = data.message.slice(data.caretPos);
+                    console.log(data.message.length, data.caretPos)
+                    console.log(data.message[data.caretPos])
+                    console.log(firstHalf, " + ", secondHalf)
+                    const newInner = firstHalf + "<span id='userID' class='tooltip' onclick='document.getElementById(\"userID\").remove()'>" + userID() + "</span>" + secondHalf;
+                    document.getElementById('editableDiv')!.innerHTML = newInner;                    
                 }
             });
         };
@@ -183,6 +232,8 @@ export default function Listen() {
                     <div class="col-span-2">
                         <h1 class="header">Pusher Test</h1>
                         <p>Listening to channel <code>{channelID}</code></p> 
+                        <p>User ID: <code>{userID()}</code></p>
+                        <p>Show User: <code>{showUser()}</code></p>
                     </div>
                     <div class="flex flex-row justify-center col-span-1">
                         <button class="bg-slate-200 p-2 my-auto rounded-l-lg" onclick={() => {toggleBold(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>
