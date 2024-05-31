@@ -3,7 +3,7 @@ import { HttpStatusCode } from "@solidjs/start";
 
 export default function NotFound() {
   return (
-    <main class="max-w-7xl m-auto mt-10">
+    <main class="max-w-7xl m-auto mt-10 min-h-screen">
       <Title>CoScribe - Not Found</Title>
       <HttpStatusCode code={404} />
       <main class="flex flex-col items-center justify-center h-[60dvh] px-4 md:px-6">

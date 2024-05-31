@@ -21,12 +21,19 @@ export default function App() {
                 <a href="/listen/1" class="hover:underline">Listen (1)</a>
               </div>
               <div class="flex items-center md:gap-10 gap-6">
-                <a href="/login" class="hover:underline">Sign Up</a>
+                <a href="/signup" class="hover:underline">Sign Up</a>
                 <a href="/login" class="hover:underline">Log In</a>
               </div>
             </div>
           </nav>
           <Suspense>{props.children}</Suspense>
+          <footer class="footer p-6 shadow-md bottom-0 bg-slate-50">
+            <div class="flex justify-between items-center flex-wrap md:text-lg text-md">
+              <div class="flex items-center md:gap-10 gap-6">
+                &copy;2024 CoScribe
+              </div>
+            </div>
+          </footer>
         </MetaProvider>
       )}
     >

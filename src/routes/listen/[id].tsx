@@ -178,7 +178,7 @@ export default function Listen() {
     return (
         <>
             <Title>CoScribe - Pusher Test</Title>
-            <main class="max-w-7xl m-auto mt-10">
+            <main class="max-w-7xl m-auto mt-10 min-h-screen">
                 <div class='grid grid-cols-1 md:grid-cols-4 gap-8 mb-2'>
                     <div class="col-span-2">
                         <h1 class="header">Pusher Test</h1>

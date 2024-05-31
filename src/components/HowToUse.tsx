@@ -46,13 +46,23 @@ export default function HowToUse() {
                         class="bg-white p-6 rounded shadow-lg w-full max-w-5xl"
                         onClick={(e) => e.stopPropagation()} // Prevent click inside the modal from closing it
                     >
-                        <h2 class="header mb-10 underline">How to use.</h2>
-                        <div class="p-6 border border-slate-300 rounded-md">
-                            <ul class="list-disc mb-4"><li>Bullet points are created by typing "-&nbsp;" on a new line.</li></ul>
-                            <ol class="list-decimal mb-4"><li>Numbered lists are created by typing "1.&nbsp;" on a new line.</li></ol>
-                            <p class="mb-4"><input type="checkbox" class="checkbox" /> Checklists are created by typing "checklist&nbsp;" on a new line.</p>
-                            <p class="mb-4 text-base">Base text is created by typing "base&nbsp;" on a new line.</p>
-                            <p class="mb-4 h1">Headings are created by typing "h1&nbsp;" on a new line.</p>
+                        <h2 class="header mb-8 underline">How to use.</h2>
+                        <p class="mt-2 underline">Decoration</p>
+                        <div class="px-6 py-2 border border-slate-300 rounded-md">
+                            <p class="my-2 text-base">Base text is created by typing "base&nbsp;" on a new line.</p>
+                            <p class="my-2 h1">Headings are created by typing "h1&nbsp;" on a new line.</p>
+                        </div>
+                        <p class="mt-2 underline">Formatting</p>
+                        <div class="px-6 py-2 border border-slate-300 rounded-md">
+                            <ul class="list-disc my-2"><li>Bullet points are created by typing "-&nbsp;" on a new line.</li></ul>
+                            <ol class="list-decimal my-2"><li>Numbered lists are created by typing "1.&nbsp;" on a new line.</li></ol>
+                            <p class="my-2"><input type="checkbox" class="checkbox" /> Checklists are created by typing "checklist&nbsp;" on a new line.</p>
+                        </div>
+                        <p class="mt-2 underline">Tables</p>
+                        <div class="px-6 py-2 border border-slate-300 rounded-md">
+                            <p class="my-2">Tables are created by typing "table&nbsp;" on a new line.</p>
+                            <p class="my-2">Insert a row by typing "insertrow&nbsp;" in a table cell.</p>
+                            <p class="my-2">Insert a column by typing "insertcolumn&nbsp;" in a table cell.</p>
                         </div>
                         <button
                             onClick={closeModal}
