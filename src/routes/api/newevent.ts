@@ -26,7 +26,11 @@ export async function POST(event: APIEvent) {
         message: body.content,
         sessionID: body.sessionID,
         userID: body.userID,
-        caretPos: body.caretPos
+        caretPos: body.caretPos,
+        target: body.target,
+        index_array: body.index_array,
+        childNumber: body.childNumber,
+        offset: body.offset
     });
 
     return {

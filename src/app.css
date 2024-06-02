@@ -31,5 +31,5 @@ body {
 }
 
 .tooltip {
-  @apply absolute p-1 rounded border border-blue-800 bg-blue-300 shadow-lg text-sm mt-6 mr-2;
+  @apply absolute px-2 py-1 rounded border border-blue-800 bg-blue-300 shadow-lg text-sm mt-8;
 }

@@ -11,7 +11,6 @@ import { baseText } from '~/components/editorFuncs/baseText';
 import { h1 } from '~/components/editorFuncs/h1';
 import { table } from '~/components/editorFuncs/table';
 import { getCaretCharOffset } from '~/components/editorFuncs/caretOffset';
-import { findHtmlIndexOfTextIndex } from '~/components/editorFuncs/findHtmlIndexOfTextIndex';
 
 export default function Listen() {
 
@@ -100,23 +99,66 @@ export default function Listen() {
         // console.log(findHtmlIndexOfTextIndex(para, caretPos-1))
         // console.log(para[findHtmlIndexOfTextIndex(para.replace(/&nbsp;/, " "), caretPos-1)])
 
+        const elementsSplit = splitHtmlStringToText(para);
+        console.log(elementsSplit)
+    
+        let count = 0;
+        let depth = 0;
+        let divdepth = 0;
+        let found = false; 
+        let target = "";
 
-        const testingSplit = para.replace(/(<([^>]+)>)/gi, "238917481784911").replace(/&nbsp;/, " ").split("238917481784911"); 
-        console.log(testingSplit)
-
-        let count = 0
-        let depth = 0
-        for (var x in testingSplit) {
-            for (var i = 0; i < testingSplit[x].length; i++) {
-                if (count == caretPos-1) {
-                    console.log("found, " + testingSplit[x][i], x, i)
-                    depth = testingSplit[x].split(testingSplit[x][i]).length - 1
+        for (var x in elementsSplit) {
+            for (var i = 0; i < elementsSplit[x].length; i++) {
+                // console.log(count, i, elementsSplit[x][i])
+                if (count == caretPos - 1) {
+                    console.log("found, " + elementsSplit[x][i], x, i);
+                    target = elementsSplit[x][i];
+                    depth = i;
+                    divdepth = parseInt(x);
+                    found = true;
                     break;
                 }
-                count +=1 
+                count += 1;
+            }
+            if (found) break;
+        }
+
+        console.log(count, caretPos, " element: ", divdepth, " content position: ", depth)
+
+        // Create a temporary div to parse the HTML string
+        let tempDiv = document.createElement('div');
+        tempDiv.innerHTML = para.replace(/&nbsp;/g, " ");
+        // Initialize the overall index
+        let overallIndex = 0;
+        let index_array = [];
+        // Iterate over the child nodes before the target element
+        for (let j = 0; j < tempDiv.childNodes.length; j++) {
+            // console.log("j:", j, "element:", tempDiv.childNodes[j], "nodeType:", tempDiv.childNodes[j].nodeType, "overallIndex:", overallIndex);
+            if (tempDiv.childNodes[j].nodeType === Node.ELEMENT_NODE) {
+                if (tempDiv.childNodes[j].tagName.toLowerCase() === 'div') {
+                    if (j < divdepth) {
+                        overallIndex += tempDiv.childNodes[j].outerHTML.length;
+                        index_array.push(overallIndex);
+                    } else if (j === divdepth) {
+                        // If we reach the target element, add the index within the element
+                        overallIndex += tempDiv.childNodes[j].textContent.substring(0, depth).length;
+                        index_array.push(overallIndex);
+                        break;
+                    }
+                } else if (j === divdepth) {
+                    // If the first node is a text node, add the index within the text content
+                    console.log(tempDiv.childNodes[j], " textContent: ", tempDiv.childNodes[j].textContent)
+                    overallIndex += tempDiv.childNodes[j].textContent.substring(0, depth).length;
+                    index_array.push(overallIndex);
+                    break;
+                }
+            } else {
+                overallIndex += tempDiv.childNodes[j].nodeValue.substring(0, depth).length;
+                index_array.push(overallIndex);
             }
         }
-        console.log(depth)
+        // console.log("Overall Index: ", overallIndex, " is a ", para.replace(/&nbsp;/g, " ")[overallIndex-1] + ". depth: ", depth)
 
         const existingDiv = document.getElementById('userID');
         if (existingDiv) {
@@ -126,11 +168,16 @@ export default function Listen() {
         fetch(`/api/newevent`, {
             method: 'POST',
             body: JSON.stringify({ 
-                content:  para.replace(/&nbsp;/, " "),
+                content:  para.replace(/&nbsp;/g, " "),
                 channel: channelID,
                 sessionID: sessionID,
                 userID: "MHA",
-                caretPos: findHtmlIndexOfTextIndex(para.replace(/&nbsp;/, " "), caretPos-1, depth)
+                // caretPos: findHtmlIndexOfTextIndex(para.replace(/&nbsp;/, " "), caretPos-1, depth, divdepth)
+                caretPos: overallIndex,
+                target: target,
+                index_array: index_array,
+                childNumber: divdepth,
+                offset: depth
             })
         });
         fetchWithDebounce()
@@ -161,14 +208,88 @@ export default function Listen() {
                     setParagraph(data.message)
                     setUserID(data.userID);
                     setShowUser(true);
-    
-                    const firstHalf = data.message.slice(0, data.caretPos);
-                    const secondHalf = data.message.slice(data.caretPos);
-                    console.log(data.message.length, data.caretPos)
-                    console.log(data.message[data.caretPos])
-                    console.log(firstHalf, " + ", secondHalf)
-                    const newInner = firstHalf + "<span id='userID' class='tooltip' onclick='document.getElementById(\"userID\").remove()'>" + userID() + "</span>" + secondHalf;
-                    document.getElementById('editableDiv')!.innerHTML = newInner;                    
+
+                    const editableDiv = document.getElementById('editableDiv')!;
+                    editableDiv.innerHTML = data.message;
+                    console.log(editableDiv.innerHTML)
+                    const range = document.createRange();
+                    const sel = window.getSelection()!;
+
+                    // Assuming newCaretPos is the character position within the child node
+                    let targetNode = editableDiv.childNodes[data.childNumber];
+                    console.log('Target node:', targetNode);
+                    // Create the span element with userID
+                    const span = document.createElement('span');
+                    span.id = 'userID';
+                    span.className = 'tooltip'; // Or 'tooltip-left' depending on your logic
+                    span.onclick = function() { span.remove(); };
+                    span.textContent = userID();
+                    // console.log(childIndex, data.index_array, data.index_array[childIndex-1], data.caretPos)
+                    console.log(targetNode, " textContent: ", targetNode.textContent, " offset: ", data.offset)
+
+                    // Handle different types of target nodes (text nodes vs element nodes)
+                    if (targetNode.nodeType === Node.TEXT_NODE) {
+                        // If the target node is a text node, set the range within the text content
+                        console.log("Text node");
+                        // Ensure the offset does not exceed the length of the text content
+                        const validOffset = Math.min(data.offset, targetNode.textContent.length);
+                        range.setStart(targetNode, validOffset);
+                    } else if (targetNode.nodeType === Node.ELEMENT_NODE) {
+                        // If the target node is an element node, adjust accordingly
+                        console.log("Element node");
+                        if ((targetNode.tagName.toLowerCase() === 'ul' || targetNode.tagName.toLowerCase() === 'ol') && targetNode.childNodes.length > 0) {
+                            // If the target is a <ul>, use the first child node (presumably an <li>)
+                            let elementTextCount = 1;
+                            let elementNumber = 0;
+                            let text_offset: number = 0;
+                            let found = false;
+                            for (var x = 0; x < targetNode.childNodes.length; x++) {
+                                console.log("x:", x, "element:", targetNode.childNodes[x], "nodeType:", targetNode.childNodes[x].nodeType, "textContent:", targetNode.childNodes[x].textContent)
+                                text_offset = 0;
+                                for (var i = 0; i < targetNode.childNodes[x].textContent.length; i++) {
+                                    // console.log(elementTextCount, data.offset, targetNode.childNodes[x].textContent[i])
+                                    if (elementTextCount == data.offset) {
+                                        text_offset = i;
+                                        found = true;
+                                        break;
+                                    }
+                                    elementTextCount += 1;
+                                }
+                                elementNumber += 1;
+                                if (found) break;
+                                // console.log(elementNumber, elementTextCount)
+                            }
+                            // console.log(elementNumber-1, targetNode.childNodes[elementNumber-1], text_offset, data.offset)
+                            targetNode = targetNode.childNodes[elementNumber-1];
+                            data.offset = text_offset
+                        } else {
+                            range.setStart(targetNode, 0);
+                        }
+                        // console.log(targetNode, " textContent: ", targetNode.textContent, " offset: ", data.offset);
+                        // Check if the target node has text content and is a valid text node
+                        if (targetNode.firstChild && targetNode.firstChild.nodeType === Node.TEXT_NODE) {
+                            const textNode = targetNode.firstChild;
+                            // Ensure the offset does not exceed the length of the text content
+                            const validOffset = Math.min(data.offset, textNode.textContent.length);
+                            range.setStart(textNode, validOffset);
+                        }
+                    } else {
+                        console.error('Unsupported node type:', targetNode.nodeType);
+                    }
+
+                    range.collapse(true);
+                    // Insert the span at the range
+                    range.insertNode(span);
+                    // Move the caret after the inserted span
+                    range.setStartAfter(span);
+                    range.collapse(true);
+                    // Update the selection
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                    console.log(data.message.length, data.caretPos);
+                    console.log(data.target, " + ", data.message[data.caretPos]);
+                    console.log(editableDiv.innerHTML);
+
                 }
             });
         };
@@ -268,3 +389,41 @@ export default function Listen() {
         </>
     );
 };
+
+
+function splitHtmlStringToText(htmlString: string) {
+    // Parse the HTML string into a DOM structure
+    let parser = new DOMParser();
+    let doc = parser.parseFromString(htmlString, 'text/html')
+    // Get all elements in the body of the parsed document
+    return splitElements(doc.body);
+}
+
+// Function to recursively get the text content of each element
+function getTextContent(element: any): string {
+    let textArray: string[] = [];
+    element.childNodes.forEach((child: { nodeType: number; nodeValue: string; }) => {
+        if (child.nodeType === Node.TEXT_NODE && child.nodeValue !== '') {
+            textArray.push(child.nodeValue);
+        } else if (child.nodeType === Node.ELEMENT_NODE) {
+            let childTextContent = getTextContent(child);
+            if (childTextContent) {
+                textArray.push(childTextContent);
+            }
+        }
+    });
+    return textArray.join('');
+}
+
+// Function to split HTML into individual elements and get their text content
+function splitElements(element: any): string[] {
+    let elementsArray: string[] = [];
+    element.childNodes.forEach((child: { nodeType: number; nodeValue: string; }) => {
+        if (child.nodeType === Node.ELEMENT_NODE) {
+            elementsArray.push(getTextContent(child));
+        } else if (child.nodeType === Node.TEXT_NODE && child.nodeValue.trim() !== '') {
+            elementsArray.push(child.nodeValue.trim());
+        }
+    });
+    return elementsArray;
+}
