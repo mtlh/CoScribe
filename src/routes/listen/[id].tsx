@@ -136,12 +136,15 @@ export default function Listen() {
         for (let j = 0; j < tempDiv.childNodes.length; j++) {
             // console.log("j:", j, "element:", tempDiv.childNodes[j], "nodeType:", tempDiv.childNodes[j].nodeType, "overallIndex:", overallIndex);
             if (tempDiv.childNodes[j].nodeType === Node.ELEMENT_NODE) {
+                // @ts-ignore
                 if (tempDiv.childNodes[j].tagName.toLowerCase() === 'div') {
                     if (j < divdepth) {
+                        // @ts-ignore
                         overallIndex += tempDiv.childNodes[j].outerHTML.length;
                         index_array.push(overallIndex);
                     } else if (j === divdepth) {
                         // If we reach the target element, add the index within the element
+                        // @ts-ignore
                         overallIndex += tempDiv.childNodes[j].textContent.substring(0, depth).length;
                         index_array.push(overallIndex);
                         break;
@@ -149,11 +152,13 @@ export default function Listen() {
                 } else if (j === divdepth) {
                     // If the first node is a text node, add the index within the text content
                     console.log(tempDiv.childNodes[j], " textContent: ", tempDiv.childNodes[j].textContent)
+                    // @ts-ignore
                     overallIndex += tempDiv.childNodes[j].textContent.substring(0, depth).length;
                     index_array.push(overallIndex);
                     break;
                 }
             } else {
+                // @ts-ignore
                 overallIndex += tempDiv.childNodes[j].nodeValue.substring(0, depth).length;
                 index_array.push(overallIndex);
             }
@@ -232,11 +237,13 @@ export default function Listen() {
                         // If the target node is a text node, set the range within the text content
                         console.log("Text node");
                         // Ensure the offset does not exceed the length of the text content
+                        // @ts-ignore
                         const validOffset = Math.min(data.offset, targetNode.textContent.length);
                         range.setStart(targetNode, validOffset);
                     } else if (targetNode.nodeType === Node.ELEMENT_NODE) {
                         // If the target node is an element node, adjust accordingly
                         console.log("Element node");
+                        // @ts-ignore
                         if ((targetNode.tagName.toLowerCase() === 'ul' || targetNode.tagName.toLowerCase() === 'ol') && targetNode.childNodes.length > 0) {
                             // If the target is a <ul>, use the first child node (presumably an <li>)
                             let elementTextCount = 1;
@@ -246,7 +253,7 @@ export default function Listen() {
                             for (var x = 0; x < targetNode.childNodes.length; x++) {
                                 console.log("x:", x, "element:", targetNode.childNodes[x], "nodeType:", targetNode.childNodes[x].nodeType, "textContent:", targetNode.childNodes[x].textContent)
                                 text_offset = 0;
-                                for (var i = 0; i < targetNode.childNodes[x].textContent.length; i++) {
+                                for (var i = 0; i < targetNode.childNodes[x].textContent!.length; i++) {
                                     // console.log(elementTextCount, data.offset, targetNode.childNodes[x].textContent[i])
                                     if (elementTextCount == data.offset) {
                                         text_offset = i;
@@ -262,15 +269,49 @@ export default function Listen() {
                             // console.log(elementNumber-1, targetNode.childNodes[elementNumber-1], text_offset, data.offset)
                             targetNode = targetNode.childNodes[elementNumber-1];
                             data.offset = text_offset
+                        // @ts-ignore
+                        } else if ((targetNode.tagName.toLowerCase() === 'table') && targetNode.childNodes.length > 0) {
+                            // If the target is a <table>, use the first child node (presumably a <tr>)
+                            console.log("Table node ", targetNode);
+                            let elementTextCount = 1;
+                            let elementNumber = 0;
+                            let rowNumber = 0;
+                            let text_offset: number = 0;
+                            let found = false;
+                            targetNode = targetNode.firstChild!;
+                            for (var x = 0; x < targetNode.childNodes.length; x++) {
+                                elementNumber = 0;
+                                for (var y = 0; y < targetNode.childNodes[x].childNodes.length; y++) {
+                                    console.log("y:", y, "element:", targetNode.childNodes[x].childNodes[y], "nodeType:", targetNode.childNodes[x].childNodes[y].nodeType, "textContent:", targetNode.childNodes[x].childNodes[y].textContent)
+                                    text_offset = 0;
+                                    for (var i = 0; i < targetNode.childNodes[x].childNodes[y].textContent!.length; i++) {
+                                        // console.log(elementTextCount, data.offset, targetNode.childNodes[x].textContent[i])
+                                        if (elementTextCount == data.offset) {
+                                            text_offset = i;
+                                            found = true;
+                                            break;
+                                        }
+                                        elementTextCount += 1;
+                                    }
+                                    elementNumber += 1;
+                                    if (found) break;
+                                }
+                                rowNumber += 1;
+                                if (found) break;
+                            }
+                            console.log(targetNode, rowNumber-1, elementNumber-1, targetNode.childNodes[rowNumber-1], targetNode.childNodes[rowNumber-1].childNodes[elementNumber-1], targetNode.childNodes[rowNumber-1].childNodes[elementNumber-1].textContent?.length)
+                            targetNode = targetNode.childNodes[rowNumber-1].childNodes[elementNumber-1];
+                            data.offset = text_offset
                         } else {
                             range.setStart(targetNode, 0);
                         }
-                        // console.log(targetNode, " textContent: ", targetNode.textContent, " offset: ", data.offset);
+                        console.log(targetNode, " textContent: ", targetNode.textContent, " offset: ", data.offset);
+
                         // Check if the target node has text content and is a valid text node
                         if (targetNode.firstChild && targetNode.firstChild.nodeType === Node.TEXT_NODE) {
                             const textNode = targetNode.firstChild;
                             // Ensure the offset does not exceed the length of the text content
-                            const validOffset = Math.min(data.offset, textNode.textContent.length);
+                            const validOffset = Math.min(data.offset, textNode.textContent!.length);
                             range.setStart(textNode, validOffset);
                         }
                     } else {
