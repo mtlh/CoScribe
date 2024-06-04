@@ -396,6 +396,7 @@ export default function Listen() {
                         <p>Listening to channel <code>{channelID}</code></p> 
                         <p>User ID: <code>{userID()}</code></p>
                         <p>Show User: <code>{showUser()}</code></p>
+                        <p>HTML string: <code>{paragraph().length}</code>/5000</p>
                     </div>
                     <div class="flex flex-row justify-center col-span-1">
                         <button class="bg-slate-200 p-2 my-auto rounded-l-lg" onclick={() => {toggleBold(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>
