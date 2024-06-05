@@ -11,6 +11,7 @@ import { baseText } from '~/components/editorFuncs/baseText';
 import { h1 } from '~/components/editorFuncs/h1';
 import { table } from '~/components/editorFuncs/table';
 import { getCaretCharOffset } from '~/components/editorFuncs/caretOffset';
+import { LoadingSpinnerCenter } from '~/components/LoadingSpinners';
 
 export default function Listen() {
 
@@ -28,6 +29,7 @@ export default function Listen() {
     }
 
     const [paragraph, setParagraph] = createSignal('');
+    const [isLoaded, setIsLoaded] = createSignal(false);
 
     // function saveParagraph() {
     //     fetch(`/api/savedoc`, {
@@ -374,6 +376,8 @@ export default function Listen() {
                     checkboxStates[index] = input.checked;
                 });
             });
+            setIsLoaded(true);
+            editableDiv.classList.remove('hidden');
         });
     });
 
@@ -390,43 +394,50 @@ export default function Listen() {
         <>
             <Title>CoScribe - Pusher Test</Title>
             <main class="max-w-7xl m-auto mt-10 min-h-screen">
-                <div class='grid grid-cols-1 md:grid-cols-4 gap-8 mb-2'>
-                    <div class="col-span-2">
-                        <h1 class="header">Pusher Test</h1>
-                        <p>Listening to channel <code>{channelID}</code></p> 
-                        <p>User ID: <code>{userID()}</code></p>
-                        <p>Show User: <code>{showUser()}</code></p>
-                        <p>HTML string: <code>{paragraph().length}</code>/5000</p>
-                    </div>
-                    <div class="flex flex-row justify-center col-span-1">
-                        <button class="bg-slate-200 p-2 my-auto rounded-l-lg" onclick={() => {toggleBold(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>
-                            <Bold />
-                        </button>
-                        <button class="bg-slate-200 p-2 my-auto" onclick={() => {toggleUnderline(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>
-                            <Underline />
-                        </button>
-                        <button class="bg-slate-200 p-2 my-auto" onclick={() => {toggleItalic(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>
-                            <Italic />
-                        </button>
-                        <button class="bg-slate-200 p-2 my-auto" onclick={() => {makeHeading(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph())}}>
-                            <H1 />
-                        </button>
-                        <button class="bg-slate-200 p-2 my-auto rounded-r-lg" onclick={() => {makeBase(); logUpdate(paragraph(), paragraph());}}>
-                            <Base />
-                        </button>
-                    </div>
-                    <div class="col-span-1 m-auto">
-                        <HowToUse />
-                    </div> 
-                </div>
-                {/* <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={saveParagraph}>Save</button> */}
+                { isLoaded() ?
+                    <>
+                        <div class='grid grid-cols-1 md:grid-cols-4 gap-8 mb-2'>
+                            <div class="col-span-2">
+                                <h1 class="header">Pusher Test</h1>
+                                <p>Listening to channel <code>{channelID}</code></p>
+                                <p>User ID: <code>{userID()}</code></p>
+                                <p>Show User: <code>{showUser()}</code></p>
+                                <p>HTML string: <code>{paragraph().length}</code>/5000</p>
+                            </div>
+                            <div class="flex flex-row justify-center col-span-1">
+                                <button class="bg-slate-200 p-2 my-auto rounded-l-lg" onclick={() => { toggleBold(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph()); } }>
+                                    <Bold />
+                                </button>
+                                <button class="bg-slate-200 p-2 my-auto" onclick={() => { toggleUnderline(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph()); } }>
+                                    <Underline />
+                                </button>
+                                <button class="bg-slate-200 p-2 my-auto" onclick={() => { toggleItalic(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph()); } }>
+                                    <Italic />
+                                </button>
+                                <button class="bg-slate-200 p-2 my-auto" onclick={() => { makeHeading(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph()); } }>
+                                    <H1 />
+                                </button>
+                                <button class="bg-slate-200 p-2 my-auto rounded-r-lg" onclick={() => { makeBase(); logUpdate(paragraph(), paragraph()); } }>
+                                    <Base />
+                                </button>
+                            </div>
+                            <div class="col-span-1 m-auto">
+                                <HowToUse />
+                            </div>
+                            {/* <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={saveParagraph}>Save</button> */}
+                        </div>
+                    </>
+                    :
+                    <LoadingSpinnerCenter />
+                }
                 <div
                     ref={el => editableDivRef = el}
                     id='editableDiv'
                     contentEditable={true}
                     onInput={handleInput}
-                    class="w-full border-2 border-gray-300 rounded-md px-8 py-4 min-h-[80dvh]"
-                ></div>
+                    class="w-full border-2 border-gray-300 rounded-md px-8 py-4 min-h-[80dvh] hidden"
+                >
+                </div>
             </main>
         </>
     );

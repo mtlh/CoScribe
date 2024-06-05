@@ -11,7 +11,7 @@ export async function POST(event: APIEvent) {
     });
 
     const res = await db.execute({
-        sql: "SELECT content, checkboxStates FROM documents WHERE id = ?",
+        sql: "SELECT content, checkboxStates FROM Documents WHERE id = ?",
         args: [body.channel],
     });
 
