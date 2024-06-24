@@ -8,7 +8,7 @@ export default function Signup() {
                         <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">Sign Up</h1>
                         <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Create your account to get started.</p>
                     </div>
-                    <form class="space-y-4">
+                    <form class="space-y-4" action="/api/signup" method="post">
                         <div>
                             <label
                                 class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

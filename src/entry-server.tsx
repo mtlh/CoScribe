@@ -11,6 +11,7 @@ export default createHandler(() => (
           <link rel="icon" href="/logo.svg" />
           <meta name="description" content="CoScribe - A collaborative writing platform" />
           <meta name="author" content="CoScribe" />
+          <link rel="preload" href="/logo.svg" as="image" />
           {assets}
         </head>
         <body>

@@ -65,8 +65,6 @@ export default function Listen() {
         }, debounceTime);
     };
 
-
-    const [showUser, setShowUser] = createSignal(false);
     const [userID, setUserID] = createSignal('');
 
     let checkboxStates: boolean[] = [];
@@ -214,7 +212,6 @@ export default function Listen() {
 
                     setParagraph(data.message)
                     setUserID(data.userID);
-                    setShowUser(true);
 
                     const editableDiv = document.getElementById('editableDiv')!;
                     editableDiv.innerHTML = data.message;
@@ -401,7 +398,6 @@ export default function Listen() {
                                 <h1 class="header">Pusher Test</h1>
                                 <p>Listening to channel <code>{channelID}</code></p>
                                 <p>User ID: <code>{userID()}</code></p>
-                                <p>Show User: <code>{showUser()}</code></p>
                                 <p>HTML string: <code>{paragraph().length}</code>/5000</p>
                             </div>
                             <div class="flex flex-row justify-center col-span-1">
