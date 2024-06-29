@@ -12,6 +12,7 @@ import { h1 } from '~/components/editorFuncs/h1';
 import { table } from '~/components/editorFuncs/table';
 import { getCaretCharOffset } from '~/components/editorFuncs/caretOffset';
 import { LoadingSpinnerCenter } from '~/components/LoadingSpinners';
+import ProgressBar from '~/components/editorFuncs/progressBar';
 
 export default function Listen() {
 
@@ -29,7 +30,10 @@ export default function Listen() {
     }
 
     const [paragraph, setParagraph] = createSignal('');
+    const [paragraphLength, setParagraphLength] = createSignal(0);
     const [isLoaded, setIsLoaded] = createSignal(false);
+
+    
 
     // function saveParagraph() {
     //     fetch(`/api/savedoc`, {
@@ -100,7 +104,7 @@ export default function Listen() {
         // console.log(para[findHtmlIndexOfTextIndex(para.replace(/&nbsp;/, " "), caretPos-1)])
 
         const elementsSplit = splitHtmlStringToText(para);
-        console.log(elementsSplit)
+        // console.log(elementsSplit)
     
         let count = 0;
         let depth = 0;
@@ -112,7 +116,7 @@ export default function Listen() {
             for (var i = 0; i < elementsSplit[x].length; i++) {
                 // console.log(count, i, elementsSplit[x][i])
                 if (count == caretPos - 1) {
-                    console.log("found, " + elementsSplit[x][i], x, i);
+                    // console.log("found, " + elementsSplit[x][i], x, i);
                     target = elementsSplit[x][i];
                     depth = i;
                     divdepth = parseInt(x);
@@ -124,7 +128,7 @@ export default function Listen() {
             if (found) break;
         }
 
-        console.log(count, caretPos, " element: ", divdepth, " content position: ", depth)
+        // console.log(count, caretPos, " element: ", divdepth, " content position: ", depth)
 
         // Create a temporary div to parse the HTML string
         let tempDiv = document.createElement('div');
@@ -151,7 +155,7 @@ export default function Listen() {
                     }
                 } else if (j === divdepth) {
                     // If the first node is a text node, add the index within the text content
-                    console.log(tempDiv.childNodes[j], " textContent: ", tempDiv.childNodes[j].textContent)
+                    // console.log(tempDiv.childNodes[j], " textContent: ", tempDiv.childNodes[j].textContent)
                     // @ts-ignore
                     overallIndex += tempDiv.childNodes[j].textContent.substring(0, depth).length;
                     index_array.push(overallIndex);
@@ -187,6 +191,7 @@ export default function Listen() {
         });
         fetchWithDebounce()
         setParagraph(para);
+        setParagraphLength(para.length);
     }
 
     onMount(async () => {
@@ -206,22 +211,23 @@ export default function Listen() {
             // Bind an event handler to the event
             // @ts-ignore
             channel.bind('my-event', function(data) {
-                console.log('Received event: ', data);
+                // console.log('Received event: ', data);
                 if (data.sessionID != sessionID) {
-                    console.log('Not my event');
+                    // console.log('Not my event');
 
                     setParagraph(data.message)
+                    setParagraphLength(data.message.length)
                     setUserID(data.userID);
 
                     const editableDiv = document.getElementById('editableDiv')!;
                     editableDiv.innerHTML = data.message;
-                    console.log(editableDiv.innerHTML)
+                    // console.log(editableDiv.innerHTML)
                     const range = document.createRange();
                     const sel = window.getSelection()!;
 
                     // Assuming newCaretPos is the character position within the child node
                     let targetNode = editableDiv.childNodes[data.childNumber];
-                    console.log('Target node:', targetNode);
+                    // console.log('Target node:', targetNode);
                     // Create the span element with userID
                     const span = document.createElement('span');
                     span.id = 'userID';
@@ -229,19 +235,19 @@ export default function Listen() {
                     span.onclick = function() { span.remove(); };
                     span.textContent = userID();
                     // console.log(childIndex, data.index_array, data.index_array[childIndex-1], data.caretPos)
-                    console.log(targetNode, " textContent: ", targetNode.textContent, " offset: ", data.offset)
+                    // console.log(targetNode, " textContent: ", targetNode.textContent, " offset: ", data.offset)
 
                     // Handle different types of target nodes (text nodes vs element nodes)
                     if (targetNode.nodeType === Node.TEXT_NODE) {
                         // If the target node is a text node, set the range within the text content
-                        console.log("Text node");
+                        // console.log("Text node");
                         // Ensure the offset does not exceed the length of the text content
                         // @ts-ignore
                         const validOffset = Math.min(data.offset, targetNode.textContent.length);
                         range.setStart(targetNode, validOffset);
                     } else if (targetNode.nodeType === Node.ELEMENT_NODE) {
                         // If the target node is an element node, adjust accordingly
-                        console.log("Element node");
+                        // console.log("Element node");
                         // @ts-ignore
                         if ((targetNode.tagName.toLowerCase() === 'ul' || targetNode.tagName.toLowerCase() === 'ol') && targetNode.childNodes.length > 0) {
                             // If the target is a <ul>, use the first child node (presumably an <li>)
@@ -250,7 +256,7 @@ export default function Listen() {
                             let text_offset: number = 0;
                             let found = false;
                             for (var x = 0; x < targetNode.childNodes.length; x++) {
-                                console.log("x:", x, "element:", targetNode.childNodes[x], "nodeType:", targetNode.childNodes[x].nodeType, "textContent:", targetNode.childNodes[x].textContent)
+                                // console.log("x:", x, "element:", targetNode.childNodes[x], "nodeType:", targetNode.childNodes[x].nodeType, "textContent:", targetNode.childNodes[x].textContent)
                                 text_offset = 0;
                                 for (var i = 0; i < targetNode.childNodes[x].textContent!.length; i++) {
                                     // console.log(elementTextCount, data.offset, targetNode.childNodes[x].textContent[i])
@@ -271,7 +277,7 @@ export default function Listen() {
                         // @ts-ignore
                         } else if ((targetNode.tagName.toLowerCase() === 'table') && targetNode.childNodes.length > 0) {
                             // If the target is a <table>, use the first child node (presumably a <tr>)
-                            console.log("Table node ", targetNode);
+                            // console.log("Table node ", targetNode);
                             let elementTextCount = 1;
                             let elementNumber = 0;
                             let rowNumber = 0;
@@ -281,7 +287,7 @@ export default function Listen() {
                             for (var x = 0; x < targetNode.childNodes.length; x++) {
                                 elementNumber = 0;
                                 for (var y = 0; y < targetNode.childNodes[x].childNodes.length; y++) {
-                                    console.log("y:", y, "element:", targetNode.childNodes[x].childNodes[y], "nodeType:", targetNode.childNodes[x].childNodes[y].nodeType, "textContent:", targetNode.childNodes[x].childNodes[y].textContent)
+                                    // console.log("y:", y, "element:", targetNode.childNodes[x].childNodes[y], "nodeType:", targetNode.childNodes[x].childNodes[y].nodeType, "textContent:", targetNode.childNodes[x].childNodes[y].textContent)
                                     text_offset = 0;
                                     for (var i = 0; i < targetNode.childNodes[x].childNodes[y].textContent!.length; i++) {
                                         // console.log(elementTextCount, data.offset, targetNode.childNodes[x].textContent[i])
@@ -298,13 +304,13 @@ export default function Listen() {
                                 rowNumber += 1;
                                 if (found) break;
                             }
-                            console.log(targetNode, rowNumber-1, elementNumber-1, targetNode.childNodes[rowNumber-1], targetNode.childNodes[rowNumber-1].childNodes[elementNumber-1], targetNode.childNodes[rowNumber-1].childNodes[elementNumber-1].textContent?.length)
+                            // console.log(targetNode, rowNumber-1, elementNumber-1, targetNode.childNodes[rowNumber-1], targetNode.childNodes[rowNumber-1].childNodes[elementNumber-1], targetNode.childNodes[rowNumber-1].childNodes[elementNumber-1].textContent?.length)
                             targetNode = targetNode.childNodes[rowNumber-1].childNodes[elementNumber-1];
                             data.offset = text_offset
                         } else {
                             range.setStart(targetNode, 0);
                         }
-                        console.log(targetNode, " textContent: ", targetNode.textContent, " offset: ", data.offset);
+                        // console.log(targetNode, " textContent: ", targetNode.textContent, " offset: ", data.offset);
 
                         // Check if the target node has text content and is a valid text node
                         if (targetNode.firstChild && targetNode.firstChild.nodeType === Node.TEXT_NODE) {
@@ -326,9 +332,9 @@ export default function Listen() {
                     // Update the selection
                     sel.removeAllRanges();
                     sel.addRange(range);
-                    console.log(data.message.length, data.caretPos);
-                    console.log(data.target, " + ", data.message[data.caretPos]);
-                    console.log(editableDiv.innerHTML);
+                    // console.log(data.message.length, data.caretPos);
+                    // console.log(data.target, " + ", data.message[data.caretPos]);
+                    // console.log(editableDiv.innerHTML);
 
                 }
             });
@@ -348,6 +354,7 @@ export default function Listen() {
             if (load_paragraph.message) {
                 editableDiv.innerHTML = load_paragraph.message;
                 setParagraph(load_paragraph.message);
+                setParagraphLength(load_paragraph.message.length);
             }
             if (load_paragraph.checkboxStates) {
                 checkboxStates = load_paragraph.checkboxStates.split(',');
@@ -398,7 +405,7 @@ export default function Listen() {
                                 <h1 class="header">Pusher Test</h1>
                                 <p>Listening to channel <code>{channelID}</code></p>
                                 <p>User ID: <code>{userID()}</code></p>
-                                <p>HTML string: <code>{paragraph().length}</code>/5000</p>
+                                <ProgressBar value={paragraphLength()} />
                             </div>
                             <div class="flex flex-row justify-center col-span-1">
                                 <button class="bg-slate-200 p-2 my-auto rounded-l-lg" onclick={() => { toggleBold(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph()); } }>
