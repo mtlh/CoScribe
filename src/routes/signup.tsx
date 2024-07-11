@@ -1,4 +1,34 @@
+import { createSignal } from "solid-js";
+
 export default function Signup() {
+
+    const [error, setError] = createSignal("");
+
+    const handleSubmit = async (event: { preventDefault: () => void; target: any; }) => {
+        event.preventDefault();
+        
+        const form = event.target;
+        const name = form.name.value;
+        const email = form.email.value;
+        const password = form.password.value;
+        const confirmPassword = form.confirmPassword.value;
+
+        const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name, email, password, confirmPassword })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            setError(data.error || "Signup failed. Please try again.");
+        } else {
+            // handle successful signup, e.g., redirect to another page
+        }
+    };
+
   return (
     <main class="min-h-screen bg-no-repeat bg-center m-auto max-w-7xl" style={{ "background-image": "url(https://www.washingtonpost.com/creativegroup/uploads/2022/01/17214556/image-assets_hero_desk-1.jpg)" }}>
         <div class="flex min-h-[100dvh] items-center justify-center">
@@ -8,7 +38,7 @@ export default function Signup() {
                         <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">Sign Up</h1>
                         <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Create your account to get started.</p>
                     </div>
-                    <form class="space-y-4" action="/api/signup" method="post">
+                    <form class="space-y-4" onSubmit={handleSubmit}>
                         <div>
                             <label
                                 class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -58,6 +88,7 @@ export default function Signup() {
                             >
                             Sign Up
                         </button>
+                        {error() && <p class="text-red-500 text-sm">{error()}</p>}
                         <p class="hover:underline text-sm"><a href="/login">Already have an account? Log In</a></p>
                     </form>
                 </div>
