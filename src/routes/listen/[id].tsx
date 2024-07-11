@@ -12,7 +12,6 @@ import { h1 } from '~/components/editorFuncs/h1';
 import { table } from '~/components/editorFuncs/table';
 import { getCaretCharOffset } from '~/components/editorFuncs/caretOffset';
 import { LoadingSpinnerCenter } from '~/components/LoadingSpinners';
-import ProgressBar from '~/components/editorFuncs/progressBar';
 
 export default function Listen() {
 
@@ -405,7 +404,19 @@ export default function Listen() {
                                 <h1 class="header">Pusher Test</h1>
                                 <p>Listening to channel <code>{channelID}</code></p>
                                 <p>User ID: <code>{userID()}</code></p>
-                                <ProgressBar value={paragraphLength()} />
+                                <div style={{ border: '1px solid #000', width: '100%', "border-radius": '5px' }}>
+                                    <div
+                                        style={{
+                                        width: `${paragraphLength() / 5000 * 100}%`,
+                                        height: '24px',
+                                        background: 'green',
+                                        "border-radius": '5px',
+                                        transition: 'width 0.3s ease-in-out'
+                                        }}
+                                    >
+                                        <span style={{ color: '#fff', padding: '0 10px' }}>{paragraphLength()}</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="flex flex-row justify-center col-span-1">
                                 <button class="bg-slate-200 p-2 my-auto rounded-l-lg" onclick={() => { toggleBold(); logUpdate(document.getElementById("editableDiv")!.innerHTML, paragraph()); } }>
