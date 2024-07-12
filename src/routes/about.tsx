@@ -26,25 +26,13 @@ export default function Home() {
                     <div class="grid gap-6">
                       <div class="flex items-start gap-4">
                         <span class="relative flex shrink-0 overflow-hidden rounded-full h-12 w-12">
-                          <span class="flex h-full w-full items-center justify-center rounded-full bg-slate-200">M</span>
+                          <span class="flex h-full w-full items-center justify-center rounded-full bg-slate-200">MHA</span>
                         </span>
                         <div class="space-y-1">
                           <div class="font-medium">Matthew</div>
-                          <div class="text-sm text-gray-500 dark:text-gray-400">Co-founder, CEO</div>
+                          <div class="text-sm text-gray-500 dark:text-gray-400">Founder, CEO</div>
                           <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Making it up as we go.
-                          </p>
-                        </div>
-                      </div>
-                      <div class="flex items-start gap-4">
-                        <span class="relative flex shrink-0 overflow-hidden rounded-full h-12 w-12">
-                          <span class="flex h-full w-full items-center justify-center rounded-full bg-slate-200">H</span>
-                        </span>
-                        <div class="space-y-1">
-                          <div class="font-medium">Harvey</div>
-                          <div class="text-sm text-gray-500 dark:text-gray-400">Co-founder, CTO</div>
-                          <p class="text-sm text-gray-500 dark:text-gray-400">
-                            Passion for building scalable and user-friendly products.
+                            Making useful things happen.
                           </p>
                         </div>
                       </div>
@@ -60,8 +48,7 @@ export default function Home() {
                     <div class="inline-block rounded-lg bg-gray-100 px-3 py-1 text-sm dark:bg-gray-800">Trusted By</div>
                     <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Trusted by the best teams</h2>
                     <p class="max-w-[700px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                      Our collaborative editor platform is trusted by leading companies and individuals across various
-                      industries.atform is trusted by leading
+                      Our collaborative editor platform is trusted by leading companies and individuals across various industries.
                     </p>
                   </div>
                   <div class="grid w-full max-w-5xl grid-cols-2 items-center justify-center gap-8 lg:grid-cols-5 [&amp;>img]:mx-auto">
@@ -82,7 +69,7 @@ export default function Home() {
                     <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Get in touch</h2>
                     <p class="max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
                       Have a question or want to learn more about our collaborative editor platform? Fill out the form and
-                      our team will be in touch.n more about our
+                      our team will be in touch.
                     </p>
                     <form class="space-y-4">
                       <div class="grid gap-4 sm:grid-cols-2">
@@ -145,8 +132,7 @@ export default function Home() {
                     <p class="max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
                       Our collaborative editor platform is designed to streamline your team's workflow, improve
                       communication, and foster innovation. Experience the difference with our powerful tools and intuitive
-                      interface.your team's workflow, improve communication, and foster innovation. Experience the
-                      difference with our powerful
+                      interface.your team's workflow, improve communication, and foster innovation.
                     </p>
                     <div class="flex flex-col gap-2 min-[400px]:flex-row">
                       <a
